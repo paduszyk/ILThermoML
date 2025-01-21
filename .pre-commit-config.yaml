@@ -1,0 +1,19 @@
+default_stages:
+  - pre-commit
+
+default_install_hook_types:
+  - pre-commit
+
+repos:
+  - repo: local
+    hooks:
+      - id: prettier
+        name: prettier
+        entry: npx prettier --check .
+        language: system
+        pass_filenames: false
+      - id: uv
+        name: uv
+        entry: uv lock --check
+        language: system
+        pass_filenames: false
