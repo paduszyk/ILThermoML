@@ -1,0 +1,13 @@
+# PEP 518 / PEP 621
+# https://packaging.python.org/en/latest/specifications/pyproject-toml/
+
+[project]
+name = "ILThermoML"
+version = "0.1.0"
+requires-python = ">=3.12,<3.13"
+
+# uv
+# https://docs.astral.sh/uv/reference/settings/
+
+[tool.uv]
+package = true
