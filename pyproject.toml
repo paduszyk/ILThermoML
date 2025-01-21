@@ -7,11 +7,19 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "ILThermoML"
-version = "0.1.0"
 requires-python = ">=3.12,<3.13"
+dynamic = ["version"]
+
 
 # uv
 # https://docs.astral.sh/uv/reference/settings/
 
 [tool.uv]
 package = true
+
+
+# setuptools
+# https://setuptools.pypa.io/en/latest/userguide/pyproject_config.html
+
+[tool.setuptools.dynamic]
+version = { attr = "ilthermoml.__version__" }
