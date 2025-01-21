@@ -17,3 +17,13 @@ repos:
         entry: uv lock --check
         language: system
         pass_filenames: false
+      - id: ruff-check
+        name: ruff (check)
+        entry: uv run ruff check
+        language: system
+        pass_filenames: false
+      - id: ruff-format
+        name: ruff (format)
+        entry: uv run ruff format
+        language: system
+        pass_filenames: false
