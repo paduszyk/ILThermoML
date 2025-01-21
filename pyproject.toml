@@ -1,6 +1,10 @@
 # PEP 518 / PEP 621
 # https://packaging.python.org/en/latest/specifications/pyproject-toml/
 
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
 [project]
 name = "ILThermoML"
 version = "0.1.0"
