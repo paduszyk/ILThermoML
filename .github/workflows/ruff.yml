@@ -15,7 +15,7 @@ jobs:
       matrix:
         command:
           - check
-          - format
+          - "format --check"
       fail-fast: false
     steps:
       - uses: actions/checkout@v4
