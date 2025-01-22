@@ -12,6 +12,7 @@ dynamic = ["version"]
 
 [dependency-groups]
 local = ["pre-commit>=4.1.0"]
+mypy = ["mypy>=1.14.1"]
 ruff = ["ruff>=0.9.2"]
 
 # uv
@@ -40,3 +41,9 @@ select = ["ALL"]
 
 [tool.ruff.lint.isort]
 known-first-party = ["ilthermoml"]
+
+# mypy
+# https://mypy.readthedocs.io/en/stable/config_file.html
+
+[tool.mypy]
+strict = true
