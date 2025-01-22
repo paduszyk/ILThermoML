@@ -53,3 +53,16 @@ select = ["ALL"]
 
 [tool.ruff.lint.isort]
 known-first-party = ["ilthermoml"]
+
+# pytest & plugins
+# https://docs.pytest.org/en/stable/reference/reference.html#ini-options-ref
+# https://pytest-cov.readthedocs.io/en/latest/config.html#reference
+
+[tool.pytest.ini_options]
+addopts = [
+  "--cov=src/",
+  "--cov-branch",
+  "--cov-report=term-missing:skip-covered",
+]
+python_files = ["test*.py"]
+testpaths = ["tests/"]
