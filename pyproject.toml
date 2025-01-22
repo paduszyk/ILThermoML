@@ -50,3 +50,9 @@ select = ["ALL"]
 
 [tool.ruff.lint.isort]
 known-first-party = ["ilthermoml"]
+
+# mypy
+# https://mypy.readthedocs.io/en/stable/config_file.html
+
+[tool.mypy]
+strict = true
