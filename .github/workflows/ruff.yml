@@ -11,12 +11,6 @@ on:
 jobs:
   ruff:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        command:
-          - check
-          - format --check
-      fail-fast: false
     steps:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v5
@@ -27,4 +21,5 @@ jobs:
         with:
           python-version-file: .python-version
       - run: uv sync --only-group ruff --frozen
-      - run: uv run ruff ${{ matrix.command }}
+      - run: uv run ruff check
+      - run: uv run ruff format --check
