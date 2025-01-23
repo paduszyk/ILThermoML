@@ -11,11 +11,13 @@ if TYPE_CHECKING:
 
 
 @pytest.fixture
-def package() -> ModuleType:
+def package() -> ModuleType | None:
     try:
         return import_module("ilthermoml")
     except ModuleNotFoundError:
         pytest.fail("importing 'ilthermoml' package failed unexpectedly")
+
+    return None
 
 
 def test_is_importable(package: ModuleType) -> None:
