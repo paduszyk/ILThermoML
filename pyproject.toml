@@ -54,6 +54,9 @@ ignore = [
 ]
 select = ["ALL"]
 
+[tool.ruff.lint.per-file-ignores]
+"**/test*.py" = ["S101"]
+
 [tool.ruff.lint.isort]
 known-first-party = ["ilthermoml"]
 
