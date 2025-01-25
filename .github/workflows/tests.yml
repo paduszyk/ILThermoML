@@ -21,4 +21,19 @@ jobs:
         with:
           python-version-file: .python-version
       - run: uv sync --group test --frozen
-      - run: uv run pytest
+      - run: uv run pytest --cov-report xml:coverage.xml
+      - uses: actions/upload-artifact@v4
+        with:
+          name: coverage
+          path: ./coverage.xml
+          if-no-files-found: error
+  codecov:
+    needs:
+      - pytest
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+      - uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
