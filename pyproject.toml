@@ -43,7 +43,7 @@ version = { attr = "ilthermoml.__version__" }
 target-version = "py312"
 
 [tool.ruff.lint]
-ignore = ["D"]
+ignore = ["COM812", "D"]
 select = ["ALL"]
 
 [tool.ruff.lint.per-file-ignores]
