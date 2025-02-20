@@ -13,7 +13,8 @@
         "ms-python.python",
         "esbenp.prettier-vscode",
         "ms-python.mypy-type-checker",
-        "charliermarsh.ruff"
+        "charliermarsh.ruff",
+        "ms-toolsai.jupyter"
       ],
       "settings": {
         "python.defaultInterpreterPath": "${containerWorkspaceFolder}/.venv/bin/python",
