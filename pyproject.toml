@@ -9,6 +9,7 @@ build-backend = "setuptools.build_meta"
 name = "ILThermoML"
 requires-python = ">=3.12,<3.13"
 dynamic = ["version"]
+dependencies = ["ilthermopy>=1.1.0"]
 
 [dependency-groups]
 local = ["ipykernel>=6.29.5", "pre-commit>=4.1.0"]
