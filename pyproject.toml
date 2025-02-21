@@ -60,7 +60,7 @@ known-first-party = ["ilthermoml"]
 strict = true
 
 [[tool.mypy.overrides]]
-module = ["pytest", "semver"]
+module = ["ilthermopy", "pandas", "pytest", "semver"]
 ignore_missing_imports = true
 
 [[tool.mypy.overrides]]
