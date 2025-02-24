@@ -1,5 +1,8 @@
 from __future__ import annotations
 
+from dataclasses import dataclass
+from unittest import mock
+
 import pandas as pd
 import pytest
 
@@ -9,22 +12,31 @@ from ilthermoml.exceptions import EntryError
 
 def test_retrive_entry() -> None:
     # Arrange
-    kepte = pd.DataFrame(
-        {
-            "Temperature, K": {0: 298.15},
-            "Pressure, kPa": {0: 101.0},
-            "Viscosity, Pa&#8226;s => Liquid": {0: 0.255},
-            "Error of viscosity, Pa&#8226;s => Liquid": {0: 0.01},
-        }
-    )
+    @dataclass()
+    class MockIlthermopyEntry:
+        header: dict[str, str]
+        data: pd.DataFrame
 
-    entry = Entry("kepte")
+    result = pd.DataFrame({"Replacement": [10]})
+
+    with mock.patch(
+        "ilthermopy.GetEntry",
+        return_value=MockIlthermopyEntry(
+            header={"To_be_replaced": "Replacement"},
+            data=pd.DataFrame({"To_be_replaced": [10]}),
+        ),
+    ) as mock_get_entry:
+        entry = Entry("id")
 
     # Assert
-    assert entry.data.equals(kepte)
+    mock_get_entry.assert_called_once_with("id")
+    assert entry.data.equals(result)
 
 
 def test_failed_to_retrive_entry() -> None:
     # Assert
-    with pytest.raises(EntryError):
+    with (
+        mock.patch("ilthermopy.GetEntry", mock.Mock(side_effect=Exception)),
+        pytest.raises(EntryError),
+    ):
         Entry("invalidID")
