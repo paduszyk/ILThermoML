@@ -193,6 +193,7 @@ name = "ilthermoml"
 source = { editable = "." }
 dependencies = [
     { name = "ilthermopy" },
+    { name = "pandas" },
 ]
 
 [package.dev-dependencies]
@@ -215,7 +216,10 @@ test = [
 ]
 
 [package.metadata]
-requires-dist = [{ name = "ilthermopy", specifier = ">=1.1.0" }]
+requires-dist = [
+    { name = "ilthermopy", specifier = ">=1.1.0" },
+    { name = "pandas", specifier = ">=2.2.3" },
+]
 
 [package.metadata.requires-dev]
 local = [
