@@ -79,3 +79,6 @@ addopts = [
 ]
 python_files = ["test*.py"]
 testpaths = ["tests/"]
+
+[tool.coverage.report]
+exclude_also = ["if TYPE_CHECKING:"]
