@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
 
-import ilthermopy as ilt
 import pandas as pd
 import pytest
 
@@ -36,7 +35,6 @@ def test_entry_raises_entry_error_if_ilthermo_entry_cannot_be_retrieved(
     def mock_get_entry(code: str) -> Any:  # noqa: ANN401
         if code == "mock_id":
             raise MockError
-        return ilt.GetEntry(code)
 
     mocker.patch("ilthermopy.GetEntry", side_effect=mock_get_entry)
 
