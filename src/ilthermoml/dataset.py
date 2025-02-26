@@ -40,7 +40,7 @@ class Entry:
 
 @dataclass
 class Dataset(ABC):
-    entries: list[Entry] = field(init=False, repr=False)
+    entries: list[Entry] = field(default_factory=list, init=False, repr=False)
 
     @staticmethod
     @abstractmethod
@@ -55,13 +55,10 @@ class Dataset(ABC):
     def populate(self) -> None:
         entry_ids = self.get_entry_ids()
 
-        entries: list[Entry] = []
         for entry_id in entry_ids:
             try:
                 entry = Entry(entry_id, dataset=self)
             except EntryError:
                 continue
 
-            entries.append(entry)
-
-        self.entries = entries
+            self.entries.append(entry)
