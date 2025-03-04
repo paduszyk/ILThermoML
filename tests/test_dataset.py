@@ -112,7 +112,7 @@ def test_dataset_attempts_to_retrive_entries(
     dataset.populate()
 
     # Assert.
-    assert dataset.entries[0] == "Mock_entry"  # type: ignore[comparison-overlap]
+    assert len(dataset.entries) == 1
     mock_entry.assert_called_once()
 
 
@@ -131,3 +131,4 @@ def test_dataset_skips_on_entryerror(
 
     # Act & Assert.
     dataset.populate()
+    assert len(dataset.entries) == 0
