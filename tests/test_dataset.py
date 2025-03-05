@@ -4,11 +4,14 @@ from typing import TYPE_CHECKING, Any
 
 import pandas as pd
 import pytest
+from joblib import Memory
 
 from ilthermoml.dataset import Dataset, Entry
 from ilthermoml.exceptions import EntryError
 
 if TYPE_CHECKING:
+    from pathlib import Path
+
     from pytest_mock import MockerFixture
 
 
@@ -60,6 +63,22 @@ def test_entry_updates_ilthermo_entry_data_columns_with_header(
 
     # Assert.
     assert entry.data.columns == ["mock_header"]
+
+
+@pytest.mark.xfail
+def test_entry_caches_ilthermo_entry(mocker: MockerFixture, tmp_path: Path) -> None:
+    # This test is supposed to check weather anything is cached while Entry is
+    # constucted. Fails due to joblib not accepting mocker.Mock as function
+    # Mock.
+    mock_get_entry = mocker.Mock()
+    mocker.patch("ilthermoml.memory.ilt_memory", Memory(tmp_path))
+    mocker.patch("ilthermoml.dataset.GetEntry", Memory(tmp_path).cache(mock_get_entry))
+
+    # Act.
+    Entry("mock_id")
+
+    # Assert.
+    assert list(tmp_path) > 0
 
 
 def test_entry_is_prepared_when_instantiated_with_dataset(
