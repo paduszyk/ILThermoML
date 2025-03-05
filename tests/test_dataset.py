@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 import pandas as pd
 import pytest
@@ -9,31 +9,7 @@ from ilthermoml.dataset import Dataset, Entry
 from ilthermoml.exceptions import EntryError
 
 if TYPE_CHECKING:
-    from collections.abc import Callable
-
     from pytest_mock import MockerFixture
-
-
-class MockError(Exception):
-    pass
-
-
-@pytest.fixture
-def create_mock_entry(mocker: MockerFixture) -> Callable[..., None]:
-    def setup_mock(
-        error: Exception | None = None,
-        header: dict[str, str] | None = None,
-        data: pd.DataFrame | None = None,
-    ) -> None:
-        header = header or {"V1": "mock_header"}
-        data = data or pd.DataFrame({"V1": []})
-        if error:
-            mocker.patch("ilthermopy.GetEntry", side_effect=error)
-        else:
-            mock = mocker.Mock(header=header, data=data)
-            mocker.patch("ilthermopy.GetEntry", return_value=mock)
-
-    return setup_mock
 
 
 def test_entry_attempts_to_retrieve_entry_from_ilthermo(
@@ -50,10 +26,17 @@ def test_entry_attempts_to_retrieve_entry_from_ilthermo(
 
 
 def test_entry_raises_entry_error_if_ilthermo_entry_cannot_be_retrieved(
-    create_mock_entry: MockerFixture.Mock,
+    mocker: MockerFixture,
 ) -> None:
     # Mock.
-    create_mock_entry(error=MockError)
+    class MockError(Exception):
+        pass
+
+    def mock_get_entry(code: str) -> Any:  # noqa: ANN401
+        if code == "mock_id":
+            raise MockError
+
+    mocker.patch("ilthermopy.GetEntry", side_effect=mock_get_entry)
 
     # Act & assert.
     with pytest.raises(EntryError):
@@ -61,10 +44,16 @@ def test_entry_raises_entry_error_if_ilthermo_entry_cannot_be_retrieved(
 
 
 def test_entry_updates_ilthermo_entry_data_columns_with_header(
-    create_mock_entry: MockerFixture.Mock,
+    mocker: MockerFixture,
 ) -> None:
     # Mock.
-    create_mock_entry()
+    mocker.patch(
+        "ilthermopy.GetEntry",
+        return_value=mocker.Mock(
+            header={"V1": "mock_header"},
+            data=pd.DataFrame({"V1": []}),
+        ),
+    )
 
     # Act.
     entry = Entry("mock_id")
@@ -73,11 +62,9 @@ def test_entry_updates_ilthermo_entry_data_columns_with_header(
     assert entry.data.columns == ["mock_header"]
 
 
-def test_entry_attempts_to_prepare_entry(
-    mocker: MockerFixture, create_mock_entry: MockerFixture.Mock
-) -> None:
+def test_entry_attempts_to_prepare_entry(mocker: MockerFixture) -> None:
     # Mock.
-    create_mock_entry()
+    mocker.patch("ilthermopy.GetEntry")
     mock_dataset = mocker.Mock()
 
     # Act.
@@ -130,15 +117,18 @@ def test_dataset_attempts_to_retrive_entries(
 
 
 def test_dataset_skips_on_entryerror(
-    dataset: DatasetTest,
-    create_mock_entry: MockerFixture.Mock,
+    dataset: DatasetTest, mocker: MockerFixture
 ) -> None:
     # Mock.
-    create_mock_entry(error=MockError)
+    class MockError(Exception):
+        pass
 
-    # Act.
+    def mock_get_entry(code: str) -> Any:  # noqa: ANN401
+        if code == "mock_id":
+            raise MockError
+
+    mocker.patch("ilthermopy.GetEntry", side_effect=mock_get_entry)
+
+    # Act & Assert.
     dataset.populate()
-
-    # Assert.
-
     assert len(dataset.entries) == 0
