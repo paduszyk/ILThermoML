@@ -50,7 +50,7 @@ def test_entry_attempts_to_retrieve_entry_from_ilthermo(
 
 
 def test_entry_raises_entry_error_if_ilthermo_entry_cannot_be_retrieved(
-    create_mock_entry: Callable[..., None],
+    create_mock_entry: MockerFixture.Mock,
 ) -> None:
     # Mock.
     create_mock_entry(error=MockError)
@@ -61,7 +61,7 @@ def test_entry_raises_entry_error_if_ilthermo_entry_cannot_be_retrieved(
 
 
 def test_entry_updates_ilthermo_entry_data_columns_with_header(
-    create_mock_entry: Callable[..., None],
+    create_mock_entry: MockerFixture.Mock,
 ) -> None:
     # Mock.
     create_mock_entry()
@@ -74,7 +74,7 @@ def test_entry_updates_ilthermo_entry_data_columns_with_header(
 
 
 def test_entry_attempts_to_prepare_entry(
-    mocker: MockerFixture, create_mock_entry: Callable[..., None]
+    mocker: MockerFixture, create_mock_entry: MockerFixture.Mock
 ) -> None:
     # Mock.
     create_mock_entry()
@@ -131,7 +131,7 @@ def test_dataset_attempts_to_retrive_entries(
 
 def test_dataset_skips_on_entryerror(
     dataset: DatasetTest,
-    create_mock_entry: Callable[..., None],
+    create_mock_entry: MockerFixture.Mock,
 ) -> None:
     # Mock.
     create_mock_entry(error=MockError)
