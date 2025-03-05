@@ -12,9 +12,12 @@ from typing import TYPE_CHECKING
 import ilthermopy as ilt
 
 from .exceptions import EntryError
+from .memory import ilt_memory
 
 if TYPE_CHECKING:
     import pandas as pd
+
+GetEntry = ilt_memory.cache(ilt.GetEntry)
 
 
 @dataclass
@@ -26,7 +29,7 @@ class Entry:
 
     def __post_init__(self, dataset: Dataset | None) -> None:
         try:
-            ilt_entry = ilt.GetEntry(self.id)
+            ilt_entry = GetEntry(self.id)
         except Exception as e:
             msg = f"failed to retrieve ILThermo entry {self.id!r}"
 

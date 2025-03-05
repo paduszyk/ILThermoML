@@ -9,7 +9,7 @@ build-backend = "setuptools.build_meta"
 name = "ILThermoML"
 requires-python = ">=3.12,<3.13"
 dynamic = ["version"]
-dependencies = ["ilthermopy>=1.1.0", "pandas>=2.2.3"]
+dependencies = ["ilthermopy>=1.1.0", "joblib>=1.4.2", "pandas>=2.2.3"]
 
 [dependency-groups]
 local = ["ipykernel>=6.29.5", "pre-commit>=4.1.0"]
@@ -61,7 +61,7 @@ known-first-party = ["ilthermoml"]
 strict = true
 
 [[tool.mypy.overrides]]
-module = ["ilthermopy", "pandas", "pytest", "pytest_mock", "semver"]
+module = ["ilthermopy", "joblib", "pandas", "pytest", "pytest_mock", "semver"]
 ignore_missing_imports = true
 
 [[tool.mypy.overrides]]
