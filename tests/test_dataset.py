@@ -16,7 +16,7 @@ def test_entry_attempts_to_retrieve_entry_from_ilthermo(
     mocker: MockerFixture,
 ) -> None:
     # Mock.
-    mock_get_entry = mocker.patch("ilthermopy.GetEntry")
+    mock_get_entry = mocker.patch("ilthermoml.dataset.GetEntry")
 
     # Act.
     Entry("mock_id")
@@ -36,7 +36,7 @@ def test_entry_raises_entry_error_if_ilthermo_entry_cannot_be_retrieved(
         if code == "mock_id":
             raise MockError
 
-    mocker.patch("ilthermopy.GetEntry", side_effect=mock_get_entry)
+    mocker.patch("ilthermoml.dataset.GetEntry", side_effect=mock_get_entry)
 
     # Act & assert.
     with pytest.raises(EntryError):
@@ -48,7 +48,7 @@ def test_entry_updates_ilthermo_entry_data_columns_with_header(
 ) -> None:
     # Mock.
     mocker.patch(
-        "ilthermopy.GetEntry",
+        "ilthermoml.dataset.GetEntry",
         return_value=mocker.Mock(
             header={"V1": "mock_header"},
             data=pd.DataFrame({"V1": []}),
@@ -69,7 +69,7 @@ def test_entry_is_prepared_when_instantiated_with_dataset(
     mock_dataset = mocker.Mock()
 
     # Mock.
-    mocker.patch("ilthermopy.GetEntry")
+    mocker.patch("ilthermoml.dataset.GetEntry")
 
     # Act.
     Entry("mock_id", mock_dataset)
@@ -94,7 +94,7 @@ def test_dataset_populate_attempts_to_retrieve_entry_ids(
     dataset = TestDataset()
 
     # Mock.
-    mocker.patch("ilthermopy.GetEntry")
+    mocker.patch("ilthermoml.dataset.GetEntry")
 
     # Spy.
     spy_get_entry_ids = mocker.spy(dataset, "get_entry_ids")
@@ -122,7 +122,7 @@ def test_dataset_populate_append_entries_with_ids_retrieved(
     dataset = TestDataset()
 
     # Mock.
-    mocker.patch("ilthermopy.GetEntry")
+    mocker.patch("ilthermoml.dataset.GetEntry")
 
     # Act.
     dataset.populate()
@@ -154,7 +154,7 @@ def test_dataset_populate_skips_entries_that_cannot_be_retrieved(
 
         return mocker.Mock()
 
-    mocker.patch("ilthermopy.GetEntry", side_effect=mock_get_entry)
+    mocker.patch("ilthermoml.dataset.GetEntry", side_effect=mock_get_entry)
 
     # Act.
     dataset.populate()
