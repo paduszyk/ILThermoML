@@ -70,15 +70,17 @@ def test_entry_caches_ilthermo_entry(mocker: MockerFixture, tmp_path: Path) -> N
     # This test is supposed to check weather anything is cached while Entry is
     # constucted. Fails due to joblib not accepting mocker.Mock as function
     # Mock.
-    mock_get_entry = mocker.Mock()
+    mock_get_entry = mocker.Mock(return_value="mock_entry")
     mocker.patch("ilthermoml.memory.ilt_memory", Memory(tmp_path))
     mocker.patch("ilthermoml.dataset.GetEntry", Memory(tmp_path).cache(mock_get_entry))
 
     # Act.
-    Entry("mock_id")
+    entry1 = Entry("mock_id")
+    entry2 = Entry("mock_id")
 
     # Assert.
-    assert list(tmp_path) > 0
+    mock_get_entry.assert_called_once()
+    assert entry1 == entry2
 
 
 def test_entry_is_prepared_when_instantiated_with_dataset(
