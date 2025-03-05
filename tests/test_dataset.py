@@ -62,10 +62,14 @@ def test_entry_updates_ilthermo_entry_data_columns_with_header(
     assert entry.data.columns == ["mock_header"]
 
 
-def test_entry_attempts_to_prepare_entry(mocker: MockerFixture) -> None:
+def test_entry_is_prepared_when_instantiated_with_dataset(
+    mocker: MockerFixture,
+) -> None:
+    # Arrange.
+    mock_dataset = mocker.Mock()
+
     # Mock.
     mocker.patch("ilthermopy.GetEntry")
-    mock_dataset = mocker.Mock()
 
     # Act.
     Entry("mock_id", mock_dataset)
@@ -74,61 +78,87 @@ def test_entry_attempts_to_prepare_entry(mocker: MockerFixture) -> None:
     mock_dataset.prepare_entry.assert_called_once()
 
 
-class DatasetTest(Dataset):
-    @staticmethod
-    def get_entry_ids() -> list[str]:
-        return ["mock_id"]
-
-    @staticmethod
-    def prepare_entry(entry: Entry) -> None:
-        _ = entry
-
-
-@pytest.fixture
-def dataset() -> DatasetTest:
-    return DatasetTest()
-
-
-def test_dataset_attempts_to_retrive_ids(
-    dataset: DatasetTest, mocker: MockerFixture
+def test_dataset_populate_attempts_to_retrieve_entry_ids(
+    mocker: MockerFixture,
 ) -> None:
+    # Arrange.
+    class TestDataset(Dataset):
+        @staticmethod
+        def get_entry_ids() -> list[str]:
+            return []
+
+        @staticmethod
+        def prepare_entry(entry: Entry) -> None:
+            pass
+
+    dataset = TestDataset()
+
     # Mock.
-    mock_get_entry_ids = mocker.patch.object(dataset, "get_entry_ids", return_value=[])
+    mocker.patch("ilthermopy.GetEntry")
+
+    # Spy.
+    spy_get_entry_ids = mocker.spy(dataset, "get_entry_ids")
 
     # Act.
     dataset.populate()
 
     # Assert.
-    mock_get_entry_ids.assert_called_once()
+    spy_get_entry_ids.assert_called_once()
 
 
-def test_dataset_attempts_to_retrive_entries(
-    dataset: DatasetTest, mocker: MockerFixture
+def test_dataset_populate_append_entries_with_ids_retrieved(
+    mocker: MockerFixture,
 ) -> None:
+    # Arrange.
+    class TestDataset(Dataset):
+        @staticmethod
+        def get_entry_ids() -> list[str]:
+            return ["id_a", "id_b"]
+
+        @staticmethod
+        def prepare_entry(entry: Entry) -> None:
+            pass
+
+    dataset = TestDataset()
+
     # Mock.
-    mock_entry = mocker.patch("ilthermoml.dataset.Entry", return_value="Mock_entry")
+    mocker.patch("ilthermopy.GetEntry")
 
     # Act.
     dataset.populate()
+    dataset_entry_ids = [entry.id for entry in dataset.entries]
 
     # Assert.
-    assert len(dataset.entries) == 1
-    mock_entry.assert_called_once()
+    assert dataset_entry_ids == ["id_a", "id_b"]
 
 
-def test_dataset_skips_on_entryerror(
-    dataset: DatasetTest, mocker: MockerFixture
+def test_dataset_populate_skips_entries_that_cannot_be_retrieved(
+    mocker: MockerFixture,
 ) -> None:
-    # Mock.
-    class MockError(Exception):
-        pass
+    # Arrange.
+    class MockDataset(Dataset):
+        @staticmethod
+        def get_entry_ids() -> list[str]:
+            return ["id_a", "id_b", "id_c"]
 
+        @staticmethod
+        def prepare_entry(entry: Entry) -> None:
+            pass
+
+    dataset = MockDataset()
+
+    # Mock.
     def mock_get_entry(code: str) -> Any:  # noqa: ANN401
-        if code == "mock_id":
-            raise MockError
+        if code == "id_b":
+            raise EntryError
+
+        return mocker.Mock()
 
     mocker.patch("ilthermopy.GetEntry", side_effect=mock_get_entry)
 
-    # Act & Assert.
+    # Act.
     dataset.populate()
-    assert len(dataset.entries) == 0
+    dataset_entry_ids = [entry.id for entry in dataset.entries]
+
+    # Assert.
+    assert dataset_entry_ids == ["id_a", "id_c"]
