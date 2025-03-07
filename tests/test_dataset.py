@@ -168,7 +168,7 @@ def test_dataset_data_returns_joined_entries(
     mocker: MockerFixture,
 ) -> None:
     # Mock.
-    def mock_get_entry(code: str) -> Any:  # noqa: ANN401 def data(self) -> pd.DataFrame: ...
+    def mock_get_entry(code: str) -> Any:  # noqa: ANN401
         if code == "id_a":
             return mocker.Mock(
                 header={"A": "A"},
