@@ -7,15 +7,12 @@ __all__ = [
 
 from abc import ABC, abstractmethod
 from dataclasses import InitVar, dataclass, field
-from typing import TYPE_CHECKING
 
 import ilthermopy as ilt
+import pandas as pd
 
 from .exceptions import EntryError
 from .memory import ilt_memory
-
-if TYPE_CHECKING:
-    import pandas as pd
 
 GetEntry = ilt_memory.cache(ilt.GetEntry)
 
@@ -44,6 +41,17 @@ class Entry:
 @dataclass
 class Dataset(ABC):
     entries: list[Entry] = field(default_factory=list, init=False, repr=False)
+
+    @property
+    def data(self) -> pd.DataFrame:
+        data: pd.DataFrame | None = None
+
+        for i, entry in enumerate(self.entries):
+            tmp_dict = entry.data.copy()
+            tmp_dict["entry_id"] = pd.Series(data=i, index=entry.data.index)
+            data = pd.concat([data, tmp_dict], ignore_index=True)
+
+        return data
 
     @staticmethod
     @abstractmethod
