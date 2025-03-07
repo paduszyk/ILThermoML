@@ -162,3 +162,43 @@ def test_dataset_populate_skips_entries_that_cannot_be_retrieved(
 
     # Assert.
     assert dataset_entry_ids == ["id_a", "id_c"]
+
+
+def test_dataset_data_returns_joined_entries(
+    mocker: MockerFixture,
+) -> None:
+    # Mock.
+    def mock_get_entry(code: str) -> Any:  # noqa: ANN401 def data(self) -> pd.DataFrame: ...
+        if code == "id_a":
+            return mocker.Mock(
+                header={"A": "A"},
+                data=pd.DataFrame({"A": [1, 2, 3]}),
+            )
+        if code == "id_b":
+            return mocker.Mock(
+                header={"A": "A"},
+                data=pd.DataFrame({"A": [4, 5, 6]}),
+            )
+        return mocker.Mock()
+
+    mocker.patch("ilthermoml.dataset.GetEntry", side_effect=mock_get_entry)
+
+    # Arrange.
+    expected_data = pd.DataFrame(
+        {"A": [1, 2, 3, 4, 5, 6], "entry_id": [0, 0, 0, 1, 1, 1]}
+    )
+
+    class MockDataset(Dataset):
+        @staticmethod
+        def get_entry_ids() -> list[str]:
+            return ["id_a", "id_b"]
+
+        @staticmethod
+        def prepare_entry(entry: Entry) -> None:
+            pass
+
+    dataset = MockDataset()
+    dataset.populate()
+
+    # Act & Assert.
+    pd.testing.assert_frame_equal(expected_data, dataset.data)
