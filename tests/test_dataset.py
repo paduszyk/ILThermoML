@@ -185,7 +185,10 @@ def test_dataset_data_returns_joined_entries(
 
     # Arrange.
     expected_data = pd.DataFrame(
-        {"A": [1, 2, 3, 4, 5, 6], "entry_id": [0, 0, 0, 1, 1, 1]}
+        {
+            "A": [1, 2, 3, 4, 5, 6],
+            "entry_id": ["id_a"] * 3 + ["id_b"] * 3,
+        }
     )
 
     class MockDataset(Dataset):
