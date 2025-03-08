@@ -10,6 +10,7 @@ from dataclasses import InitVar, dataclass, field
 from typing import TYPE_CHECKING
 
 import ilthermopy as ilt
+from tqdm import tqdm
 
 from .exceptions import EntryError
 from .memory import ilt_memory
@@ -58,7 +59,7 @@ class Dataset(ABC):
     def populate(self) -> None:
         entry_ids = self.get_entry_ids()
 
-        for entry_id in entry_ids:
+        for entry_id in tqdm(entry_ids, desc="Populating dataset"):
             try:
                 entry = Entry(entry_id, dataset=self)
             except EntryError:
