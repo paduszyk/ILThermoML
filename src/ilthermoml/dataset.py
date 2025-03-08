@@ -44,14 +44,10 @@ class Dataset(ABC):
 
     @property
     def data(self) -> pd.DataFrame:
-        data: pd.DataFrame | None = None
-
-        for i, entry in enumerate(self.entries):
-            tmp_dict = entry.data.copy()
-            tmp_dict["entry_id"] = pd.Series(data=i, index=entry.data.index)
-            data = pd.concat([data, tmp_dict], ignore_index=True)
-
-        return data
+        return pd.concat(
+            [entry.data.assign(entry_id=entry.id) for entry in self.entries],
+            ignore_index=True,
+        )
 
     @staticmethod
     @abstractmethod
