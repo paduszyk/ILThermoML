@@ -19,5 +19,5 @@ jobs:
           pyproject-file: pyproject.toml
       - uses: actions/setup-python@v5
         with:
-          python-version-file: .python-version
+          python-version-file: pyproject.toml
       - run: uv lock --check
