@@ -7,16 +7,13 @@ __all__ = [
 
 from abc import ABC, abstractmethod
 from dataclasses import InitVar, dataclass, field
-from typing import TYPE_CHECKING
 
 import ilthermopy as ilt
+import pandas as pd
 from tqdm import tqdm
 
 from .exceptions import EntryError
 from .memory import ilt_memory
-
-if TYPE_CHECKING:
-    import pandas as pd
 
 GetEntry = ilt_memory.cache(ilt.GetEntry)
 
@@ -45,6 +42,13 @@ class Entry:
 @dataclass
 class Dataset(ABC):
     entries: list[Entry] = field(default_factory=list, init=False, repr=False)
+
+    @property
+    def data(self) -> pd.DataFrame:
+        return pd.concat(
+            [entry.data.assign(entry_id=entry.id) for entry in self.entries],
+            ignore_index=True,
+        )
 
     @staticmethod
     @abstractmethod
