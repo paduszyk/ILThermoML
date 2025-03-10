@@ -6,7 +6,7 @@ import pandas as pd
 import pytest
 
 from ilthermoml.dataset import Dataset, Entry
-from ilthermoml.exceptions import EntryError
+from ilthermoml.exceptions import DatasetError, EntryError
 
 if TYPE_CHECKING:
     from pytest_mock import MockerFixture
@@ -215,3 +215,21 @@ def test_dataset_data_returns_concatenated_entries(
 
     # Act & Assert.
     pd.testing.assert_frame_equal(expected_data, dataset.data)
+
+
+def test_dataset_raises_dataset_error_if_entry_list_empty() -> None:
+    # Arrange.
+    class MockDataset(Dataset):
+        @staticmethod
+        def get_entry_ids() -> list[str]:
+            return []
+
+        @staticmethod
+        def prepare_entry(entry: Entry) -> None:
+            pass
+
+    dataset = MockDataset()
+
+    # Act & Assert.
+    with pytest.raises(DatasetError):
+        _ = dataset.data
