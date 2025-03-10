@@ -51,12 +51,15 @@ version = { attr = "ilthermoml.__version__" }
 target-version = "py312"
 
 [tool.ruff.lint]
-ignore = ["COM812", "D"]
+ignore = ["COM812", "D1", "D205"]
 select = ["ALL"]
 
 [tool.ruff.lint.per-file-ignores]
 "**/__init__.py" = ["F403"]
 "**/test*.py" = ["S101"]
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
 
 [tool.ruff.lint.isort]
 known-first-party = ["ilthermoml"]
