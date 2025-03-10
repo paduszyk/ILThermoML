@@ -7,16 +7,13 @@ __all__ = [
 
 from abc import ABC, abstractmethod
 from dataclasses import InitVar, dataclass, field
-from typing import TYPE_CHECKING
 
 import ilthermopy as ilt
+import pandas as pd
 from tqdm import tqdm
 
-from .exceptions import EntryError
+from .exceptions import DatasetError, EntryError
 from .memory import ilt_memory
-
-if TYPE_CHECKING:
-    import pandas as pd
 
 GetEntry = ilt_memory.cache(ilt.GetEntry)
 
@@ -45,6 +42,18 @@ class Entry:
 @dataclass
 class Dataset(ABC):
     entries: list[Entry] = field(default_factory=list, init=False, repr=False)
+
+    @property
+    def data(self) -> pd.DataFrame:
+        if entries := self.entries:
+            return pd.concat(
+                {entry.id: entry.data for entry in entries},
+                names=["entry_id", "data_point_id"],
+            )
+
+        msg = "dataset is empty"
+
+        raise DatasetError(msg)
 
     @staticmethod
     @abstractmethod

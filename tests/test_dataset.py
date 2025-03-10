@@ -6,7 +6,7 @@ import pandas as pd
 import pytest
 
 from ilthermoml.dataset import Dataset, Entry
-from ilthermoml.exceptions import EntryError
+from ilthermoml.exceptions import DatasetError, EntryError
 
 if TYPE_CHECKING:
     from pytest_mock import MockerFixture
@@ -162,3 +162,74 @@ def test_dataset_populate_skips_entries_that_cannot_be_retrieved(
 
     # Assert.
     assert dataset_entry_ids == ["id_a", "id_c"]
+
+
+def test_dataset_data_returns_concatenated_entries(
+    mocker: MockerFixture,
+) -> None:
+    # Mock.
+    def mock_get_entry(code: str) -> Any:  # noqa: ANN401
+        if code == "id_a":
+            return mocker.Mock(
+                header={"mock_header": "mock_header"},
+                data=pd.DataFrame({"mock_header": [1, 2, 3]}),
+            )
+        if code == "id_b":
+            return mocker.Mock(
+                header={"mock_header": "mock_header"},
+                data=pd.DataFrame({"mock_header": [4, 5, 6]}),
+            )
+        return mocker.Mock()
+
+    mocker.patch("ilthermoml.dataset.GetEntry", side_effect=mock_get_entry)
+
+    # Arrange.
+    expected_data = pd.DataFrame(
+        {
+            "mock_header": [1, 2, 3, 4, 5, 6],
+        },
+        index=pd.MultiIndex.from_tuples(
+            [
+                ("id_a", 0),
+                ("id_a", 1),
+                ("id_a", 2),
+                ("id_b", 0),
+                ("id_b", 1),
+                ("id_b", 2),
+            ],
+            names=["entry_id", "data_point_id"],
+        ),
+    )
+
+    class MockDataset(Dataset):
+        @staticmethod
+        def get_entry_ids() -> list[str]:
+            return ["id_a", "id_b"]
+
+        @staticmethod
+        def prepare_entry(entry: Entry) -> None:
+            pass
+
+    dataset = MockDataset()
+    dataset.populate()
+
+    # Act & assert.
+    pd.testing.assert_frame_equal(expected_data, dataset.data)
+
+
+def test_dataset_raises_dataset_error_if_entry_list_empty() -> None:
+    # Arrange.
+    class MockDataset(Dataset):
+        @staticmethod
+        def get_entry_ids() -> list[str]:
+            return []
+
+        @staticmethod
+        def prepare_entry(entry: Entry) -> None:
+            pass
+
+    dataset = MockDataset()
+
+    # Act & assert.
+    with pytest.raises(DatasetError):
+        _ = dataset.data
