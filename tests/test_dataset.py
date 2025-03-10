@@ -213,7 +213,7 @@ def test_dataset_data_returns_concatenated_entries(
     dataset = MockDataset()
     dataset.populate()
 
-    # Act & Assert.
+    # Act & assert.
     pd.testing.assert_frame_equal(expected_data, dataset.data)
 
 
@@ -230,6 +230,6 @@ def test_dataset_raises_dataset_error_if_entry_list_empty() -> None:
 
     dataset = MockDataset()
 
-    # Act & Assert.
+    # Act & assert.
     with pytest.raises(DatasetError):
         _ = dataset.data
