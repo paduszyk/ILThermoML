@@ -12,7 +12,7 @@ import ilthermopy as ilt
 import pandas as pd
 from tqdm import tqdm
 
-from .exceptions import EntryError
+from .exceptions import DatasetError, EntryError
 from .memory import ilt_memory
 
 GetEntry = ilt_memory.cache(ilt.GetEntry)
@@ -45,10 +45,15 @@ class Dataset(ABC):
 
     @property
     def data(self) -> pd.DataFrame:
-        return pd.concat(
-            [entry.data.assign(entry_id=entry.id) for entry in self.entries],
-            ignore_index=True,
-        )
+        if entries := self.entries:
+            return pd.concat(
+                {entry.id: entry.data for entry in entries},
+                names=["entry_id", "data_point_id"],
+            )
+
+        msg = "dataset is empty"
+
+        raise DatasetError(msg)
 
     @staticmethod
     @abstractmethod

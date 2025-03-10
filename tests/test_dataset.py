@@ -164,20 +164,20 @@ def test_dataset_populate_skips_entries_that_cannot_be_retrieved(
     assert dataset_entry_ids == ["id_a", "id_c"]
 
 
-def test_dataset_data_returns_joined_entries(
+def test_dataset_data_returns_concatenated_entries(
     mocker: MockerFixture,
 ) -> None:
     # Mock.
     def mock_get_entry(code: str) -> Any:  # noqa: ANN401
         if code == "id_a":
             return mocker.Mock(
-                header={"A": "A"},
-                data=pd.DataFrame({"A": [1, 2, 3]}),
+                header={"mock_header": "mock_header"},
+                data=pd.DataFrame({"mock_header": [1, 2, 3]}),
             )
         if code == "id_b":
             return mocker.Mock(
-                header={"A": "A"},
-                data=pd.DataFrame({"A": [4, 5, 6]}),
+                header={"mock_header": "mock_header"},
+                data=pd.DataFrame({"mock_header": [4, 5, 6]}),
             )
         return mocker.Mock()
 
@@ -186,9 +186,19 @@ def test_dataset_data_returns_joined_entries(
     # Arrange.
     expected_data = pd.DataFrame(
         {
-            "A": [1, 2, 3, 4, 5, 6],
-            "entry_id": ["id_a"] * 3 + ["id_b"] * 3,
-        }
+            "mock_header": [1, 2, 3, 4, 5, 6],
+        },
+        index=pd.MultiIndex.from_tuples(
+            [
+                ("id_a", 0),
+                ("id_a", 1),
+                ("id_a", 2),
+                ("id_b", 0),
+                ("id_b", 1),
+                ("id_b", 2),
+            ],
+            names=["entry_id", "data_point_id"],
+        ),
     )
 
     class MockDataset(Dataset):
