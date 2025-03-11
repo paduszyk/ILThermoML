@@ -47,6 +47,11 @@ class Entry:
 
             raise EntryError(msg) from e
 
+        if len(ilt_entry.components) > 1:
+            msg = "entries with multiple components are not supported"
+
+            raise EntryError(msg)
+
         self.data = ilt_entry.data.copy().rename(columns=ilt_entry.header)
 
         if dataset:
