@@ -10,7 +10,8 @@ from ilthermoml.exceptions import InvalidChargeError
 
 def test_ionic_liquid_correct_ions() -> None:
     # Arrange.
-    smiles = "CC[n+]1ccn(C)c1.N#C[N-]C#N"  # cmpund id: AAiEIE
+    # ILThermo compound ID: AAiEIE.
+    smiles = "CC[n+]1ccn(C)c1.N#C[N-]C#N"
     smiles_reverse = "N#C[N-]C#N.CC[n+]1ccn(C)c1"
 
     # Act.
@@ -27,7 +28,7 @@ def test_ionic_liquid_correct_ions() -> None:
 
 def test_ionic_liquid_correct_stoichiometry() -> None:
     # Arrange.
-    # compund id: ACGpYk
+    # ILThermo compound ID: ACGpYk.
     smiles = "CCCCn1cc[n+](C)c1.CCCCn1cc[n+](C)c1.N#CS[Zn-2](SC#N)(SC#N)SC#N"
 
     expected_stoichiometry = Stoichiometry(2, 1)
@@ -41,16 +42,15 @@ def test_ionic_liquid_correct_stoichiometry() -> None:
 
 def test_ionic_liquid_value_error_if_more_than_one_anion() -> None:
     # Arrange.
-    smiles = (
-        "CC[n+]1c(Cl)cn(C)c1.CC[n+]1ccn(C)c1.N#C[N-]C#N"  # modified cmpund id: AAiEIE
-    )
+    # ILThermo compound ID: AAiEIE (modified).
+    smiles = "CC[n+]1c(Cl)cn(C)c1.CC[n+]1ccn(C)c1.N#C[N-]C#N"
 
     expected_msg = re.compile(
         r"salts must contain exactly one type of both cation and anion; "
         r"found \d+ type\(s\)"
     )
 
-    # Act & Assert.
+    # Act & assert.
     with pytest.raises(ValueError, match=expected_msg):
         _ = IonicLiquid(smiles)
 
@@ -59,7 +59,7 @@ def test_ion_charge_error_if_charge_zero() -> None:
     # Arrange.
     smiles = "O=C(O)CN"
 
-    # Act & Assert
+    # Act & assert.
     with pytest.raises(InvalidChargeError):
         _ = Ion(smiles)
 
@@ -68,7 +68,7 @@ def test_cation_charge_error_if_charge_negative() -> None:
     # Arrange.
     smiles = "O=C([O-])CN"
 
-    # Act & Assert
+    # Act & assert.
     with pytest.raises(InvalidChargeError):
         _ = Cation(smiles)
 
@@ -77,6 +77,6 @@ def test_anion_charge_error_if_charge_positive() -> None:
     # Arrange.
     smiles = "O=C(O)C[NH3+]"
 
-    # Act & Assert
+    # Act & assert.
     with pytest.raises(InvalidChargeError):
         _ = Anion(smiles)
