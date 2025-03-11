@@ -32,7 +32,7 @@ def test_entry_raises_entry_error_if_ilthermo_entry_cannot_be_retrieved(
     class MockError(Exception):
         pass
 
-    def mock_get_entry(code: str) -> Any:  # noqa: ANN401
+    def mock_get_entry(code: str) -> Any:
         if code == "mock_id":
             raise MockError
 
@@ -148,7 +148,7 @@ def test_dataset_populate_skips_entries_that_cannot_be_retrieved(
     dataset = MockDataset()
 
     # Mock.
-    def mock_get_entry(code: str) -> Any:  # noqa: ANN401
+    def mock_get_entry(code: str) -> Any:
         if code == "id_b":
             raise EntryError
 
@@ -168,7 +168,7 @@ def test_dataset_data_returns_concatenated_entries(
     mocker: MockerFixture,
 ) -> None:
     # Mock.
-    def mock_get_entry(code: str) -> Any:  # noqa: ANN401
+    def mock_get_entry(code: str) -> Any:
         if code == "id_a":
             return mocker.Mock(
                 header={"mock_header": "mock_header"},

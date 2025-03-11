@@ -56,7 +56,7 @@ select = ["ALL"]
 
 [tool.ruff.lint.per-file-ignores]
 "**/__init__.py" = ["F403"]
-"**/test*.py" = ["S101"]
+"**/test*.py" = ["ANN", "S101"]
 
 [tool.ruff.lint.pydocstyle]
 convention = "google"
