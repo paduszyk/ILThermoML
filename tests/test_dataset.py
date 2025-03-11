@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING, Any
 
 import pandas as pd
 import pytest
+from ilthermopy.data_structs import Compound as ILThermoPyCompound
 
 from ilthermoml.dataset import Dataset, Entry
 from ilthermoml.exceptions import DatasetError, EntryError
@@ -52,6 +53,14 @@ def test_entry_updates_ilthermo_entry_data_columns_with_header(
         return_value=mocker.Mock(
             header={"V1": "mock_header"},
             data=pd.DataFrame({"V1": []}),
+            components=[
+                mocker.Mock(
+                    autospec=ILThermoPyCompound(
+                        id="mock_id",
+                        name="mock_name",
+                    )
+                ),
+            ],
         ),
     )
 
@@ -152,7 +161,16 @@ def test_dataset_populate_skips_entries_that_cannot_be_retrieved(
         if code == "id_b":
             raise EntryError
 
-        return mocker.Mock()
+        return mocker.Mock(
+            components=[
+                mocker.Mock(
+                    autospec=ILThermoPyCompound(
+                        id="mock_id",
+                        name="mock_name",
+                    )
+                ),
+            ],
+        )
 
     mocker.patch("ilthermoml.dataset.GetEntry", side_effect=mock_get_entry)
 
@@ -173,11 +191,27 @@ def test_dataset_data_returns_concatenated_entries(
             return mocker.Mock(
                 header={"mock_header": "mock_header"},
                 data=pd.DataFrame({"mock_header": [1, 2, 3]}),
+                components=[
+                    mocker.Mock(
+                        autospec=ILThermoPyCompound(
+                            id="mock_id_a",
+                            name="mock_name_a",
+                        )
+                    ),
+                ],
             )
         if code == "id_b":
             return mocker.Mock(
                 header={"mock_header": "mock_header"},
                 data=pd.DataFrame({"mock_header": [4, 5, 6]}),
+                components=[
+                    mocker.Mock(
+                        autospec=ILThermoPyCompound(
+                            id="mock_id_b",
+                            name="mock_name_b",
+                        )
+                    ),
+                ],
             )
         return mocker.Mock()
 
