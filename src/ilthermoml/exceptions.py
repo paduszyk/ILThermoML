@@ -1,7 +1,9 @@
 __all__ = [
+    "ChemistryError",
     "DatasetError",
     "EntryError",
     "ILThermoMLException",
+    "InvalidChargeError",
 ]
 
 
@@ -15,3 +17,11 @@ class EntryError(ILThermoMLException):
 
 class DatasetError(ILThermoMLException):
     """Exception raised for errors in the dataset operations."""
+
+
+class ChemistryError(ILThermoMLException):
+    """Exception raised for errors in the chemistry operations."""
+
+
+class InvalidChargeError(ChemistryError):
+    """Exception raised for invalid charge values."""
