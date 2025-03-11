@@ -6,12 +6,12 @@ __all__ = [
 
 
 class ILThermoMLException(Exception):  # noqa: N818
-    pass
+    """Base exception for ILThermoML errors."""
 
 
 class EntryError(ILThermoMLException):
-    pass
+    """Exception raised for errors in the entry retrieval."""
 
 
 class DatasetError(ILThermoMLException):
-    pass
+    """Exception raised for errors in the dataset operations."""
