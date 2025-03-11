@@ -24,6 +24,7 @@ ruff = ["ruff>=0.9.2"]
 test = [
   "pytest>=8.3.4",
   "pytest-cov>=6.0.0",
+  "pytest-env>=1.1.5",
   "pytest-mock>=3.14.0",
   "pytest-randomly>=3.16.0",
   "semver>=3.0.2",
@@ -80,8 +81,10 @@ disallow_untyped_decorators = false
 # pytest & plugins
 # https://docs.pytest.org/en/stable/reference/reference.html#ini-options-ref
 # https://pytest-cov.readthedocs.io/en/latest/config.html#reference
+# https://github.com/pytest-dev/pytest-env
 
 [tool.pytest.ini_options]
+env = ["TQDM_DISABLE=true"]
 addopts = [
   "--cov=src/",
   "--cov-branch",
