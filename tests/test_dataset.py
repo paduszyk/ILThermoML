@@ -44,6 +44,25 @@ def test_entry_raises_entry_error_if_ilthermo_entry_cannot_be_retrieved(
         Entry("mock_id")
 
 
+def test_entry_raises_entry_error_if_entry_has_multiple_components(
+    mocker: MockerFixture,
+) -> None:
+    # Mock.
+    mocker.patch(
+        "ilthermoml.dataset.GetEntry",
+        return_value=mocker.Mock(
+            components=[
+                mocker.Mock(),
+                mocker.Mock(),
+            ],
+        ),
+    )
+
+    # Act & assert.
+    with pytest.raises(EntryError):
+        Entry("mock_id")
+
+
 def test_entry_updates_ilthermo_entry_data_columns_with_header(
     mocker: MockerFixture,
 ) -> None:
