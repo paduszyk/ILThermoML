@@ -20,12 +20,26 @@ GetEntry = ilt_memory.cache(ilt.GetEntry)
 
 @dataclass
 class Entry:
+    """Represents a single entry in the dataset."""
+
     id: str
+    """The identifier of the entry."""
+
     data: pd.DataFrame = field(init=False, repr=False)
+    """The data associated with the entry."""
 
     dataset: InitVar[Dataset | None] = None
+    """The dataset to which this entry belongs."""
 
     def __post_init__(self, dataset: Dataset | None) -> None:
+        """Initialize the entry by retrieving data from ILThermo.
+
+        Args:
+            dataset: The dataset to which this entry belongs.
+
+        Raises:
+            EntryError: If the entry cannot be retrieved from ILThermo.
+        """
         try:
             ilt_entry = GetEntry(self.id)
         except Exception as e:
@@ -41,10 +55,21 @@ class Entry:
 
 @dataclass
 class Dataset(ABC):
+    """Abstract base class for datasets."""
+
     entries: list[Entry] = field(default_factory=list, init=False, repr=False)
+    """The list of entries in the dataset."""
 
     @property
     def data(self) -> pd.DataFrame:
+        """Concatenate and return the data from all entries in the dataset.
+
+        Returns:
+            The concatenated data from all entries.
+
+        Raises:
+            DatasetError: If the dataset is empty.
+        """
         if entries := self.entries:
             return pd.concat(
                 {entry.id: entry.data for entry in entries},
@@ -58,14 +83,23 @@ class Dataset(ABC):
     @staticmethod
     @abstractmethod
     def get_entry_ids() -> list[str]:
-        pass
+        """Get the list of entry IDs.
+
+        Returns:
+            The list of entry IDs.
+        """
 
     @staticmethod
     @abstractmethod
     def prepare_entry(entry: Entry) -> None:
-        pass
+        """Prepare an entry.
+
+        Args:
+            entry: The entry to prepare.
+        """
 
     def populate(self) -> None:
+        """Populate the dataset with entries."""
         entry_ids = self.get_entry_ids()
 
         for entry_id in tqdm(entry_ids, desc="Populating dataset"):
