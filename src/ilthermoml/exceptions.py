@@ -4,6 +4,7 @@ __all__ = [
     "EntryError",
     "ILThermoMLException",
     "InvalidChargeError",
+    "IonicLiquidCationError",
     "UnsupportedSaltTypeError",
 ]
 
@@ -26,6 +27,10 @@ class ChemistryError(ILThermoMLException):
 
 class UnsupportedSaltTypeError(ChemistryError):
     """Exception raised for unsupported types of salts."""
+
+
+class IonicLiquidCationError(UnsupportedSaltTypeError):
+    """Exception raised for unsupported types of cations in ionic liquids."""
 
 
 class InvalidChargeError(ChemistryError):

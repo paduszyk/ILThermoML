@@ -11,7 +11,11 @@ from typing import NamedTuple, override
 
 from rdkit import Chem
 
-from .exceptions import InvalidChargeError, UnsupportedSaltTypeError
+from .exceptions import (
+    InvalidChargeError,
+    IonicLiquidCationError,
+    UnsupportedSaltTypeError,
+)
 
 
 @dataclass
@@ -44,6 +48,14 @@ class Molecule(ABC):
         self.post_init_check()
 
     # NOTE: Other relevant properties from the RDKIT `Mol` object can be wrapped here.
+
+    def is_organic(self) -> bool:
+        """Return `True` if the molecule is organic, `False` otherwise."""
+        return any(
+            atom.GetSymbol() == "C"
+            for atom in self._rdkit_mol.GetAtoms()  # type: ignore[no-untyped-call]
+            if atom.GetAtomicNum()
+        )
 
     @property
     def charge_number(self) -> int:
@@ -151,3 +163,11 @@ class Salt:
 @dataclass
 class IonicLiquid(Salt):
     """Represents an ionic liquid."""
+
+    def __post_init__(self) -> None:
+        super().__post_init__()
+
+        if not self.cation.is_organic():
+            msg = "cations in ionic liquids must be organic"
+
+            raise IonicLiquidCationError(msg)
