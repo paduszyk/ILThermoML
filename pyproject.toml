@@ -13,6 +13,7 @@ dependencies = [
   "ilthermopy>=1.1.0",
   "joblib>=1.4.2",
   "pandas>=2.2.3",
+  "rdkit>=2024.9.5",
   "tqdm>=4.67.1",
   "types-tqdm>=4.67.0.20250301",
 ]
