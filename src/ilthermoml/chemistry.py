@@ -11,7 +11,7 @@ from typing import NamedTuple, override
 
 from rdkit import Chem
 
-from .exceptions import InvalidChargeError
+from .exceptions import InvalidChargeError, UnsupportedSaltTypeError
 
 
 @dataclass
@@ -124,7 +124,7 @@ class Salt:
                 f"found {len(smiles_codes)} type(s)"
             )
 
-            raise ValueError(msg) from e
+            raise UnsupportedSaltTypeError(msg) from e
 
         if any(
             [

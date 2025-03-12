@@ -4,6 +4,7 @@ __all__ = [
     "EntryError",
     "ILThermoMLException",
     "InvalidChargeError",
+    "UnsupportedSaltTypeError",
 ]
 
 
@@ -21,6 +22,10 @@ class DatasetError(ILThermoMLException):
 
 class ChemistryError(ILThermoMLException):
     """Exception raised for errors in the chemistry operations."""
+
+
+class UnsupportedSaltTypeError(ChemistryError):
+    """Exception raised for unsupported types of salts."""
 
 
 class InvalidChargeError(ChemistryError):

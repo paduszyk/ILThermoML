@@ -1,11 +1,9 @@
 from __future__ import annotations
 
-import re
-
 import pytest
 
 from ilthermoml.chemistry import Anion, Cation, Ion, IonicLiquid, Stoichiometry
-from ilthermoml.exceptions import InvalidChargeError
+from ilthermoml.exceptions import InvalidChargeError, UnsupportedSaltTypeError
 
 
 def test_ionic_liquid_correct_ions() -> None:
@@ -45,13 +43,8 @@ def test_ionic_liquid_value_error_if_more_than_one_anion() -> None:
     # ILThermo compound ID: AAiEIE (modified).
     smiles = "CC[n+]1c(Cl)cn(C)c1.CC[n+]1ccn(C)c1.N#C[N-]C#N"
 
-    expected_msg = re.compile(
-        r"salts must contain exactly one type of both cation and anion; "
-        r"found \d+ type\(s\)"
-    )
-
     # Act & assert.
-    with pytest.raises(ValueError, match=expected_msg):
+    with pytest.raises(UnsupportedSaltTypeError):
         _ = IonicLiquid(smiles)
 
 
