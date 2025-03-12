@@ -1,5 +1,6 @@
 __pycache__/
 .coverage
+.env*
 .ilt_cache/
 .mypy_cache/
 .pytest_cache/
