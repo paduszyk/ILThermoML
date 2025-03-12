@@ -3,7 +3,11 @@ from __future__ import annotations
 import pytest
 
 from ilthermoml.chemistry import Anion, Cation, Ion, IonicLiquid, Stoichiometry
-from ilthermoml.exceptions import InvalidChargeError, UnsupportedSaltTypeError
+from ilthermoml.exceptions import (
+    InvalidChargeError,
+    IonicLiquidCationError,
+    UnsupportedSaltTypeError,
+)
 
 
 def test_ionic_liquid_correct_ions() -> None:
@@ -73,3 +77,12 @@ def test_anion_charge_error_if_charge_positive() -> None:
     # Act & assert.
     with pytest.raises(InvalidChargeError):
         _ = Anion(smiles)
+
+
+def test_ionic_liquid_cation_error_if_cation_inorganic() -> None:
+    # Arrange.
+    smiles = "[Na+].N#C[N-]C#N"
+
+    # Act & assert.
+    with pytest.raises(IonicLiquidCationError):
+        _ = IonicLiquid(smiles)
