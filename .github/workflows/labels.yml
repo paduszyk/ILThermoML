@@ -1,0 +1,28 @@
+name: Labels
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - .github/workflows/labels.yml
+  pull_request:
+    branches:
+      - main
+    paths:
+      - .github/workflows/labels.yml
+  workflow_dispatch:
+
+permissions:
+  issues: write
+
+jobs:
+  labels:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: EndBug/label-sync@v2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          delete-other-labels: true
+          source-repo: paduszyk/labels
