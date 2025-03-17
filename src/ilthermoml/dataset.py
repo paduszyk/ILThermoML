@@ -60,8 +60,11 @@ class Entry:
         self.data = ilt_entry.data.copy().rename(columns=ilt_entry.header)
         self.ionic_liquid_id = ilt_entry.components[0].id
 
-        if smiles_error := ilt_entry.components[0].smiles_error:
-            msg = f"entry {self.id!r} has no smiles: {smiles_error}"
+        if not ilt_entry.components[0].smiles:
+            msg = (
+                f"entry {self.id!r} has no smiles:"
+                f" {ilt_entry.components[0].smiles_error}"
+            )
 
             raise EntryError(msg)
 
