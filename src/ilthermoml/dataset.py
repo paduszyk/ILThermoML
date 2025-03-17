@@ -14,7 +14,7 @@ import ilthermopy as ilt
 import pandas as pd
 from tqdm import tqdm
 
-from .exceptions import DatasetError, EntryError
+from .exceptions import ChemistryError, DatasetError, EntryError
 from .memory import ilt_memory
 
 GetEntry = ilt_memory.cache(ilt.GetEntry)
@@ -67,7 +67,7 @@ class Entry:
 
         try:
             self.ionic_liquid = IonicLiquid(ilt_entry.components[0].smiles)
-        except Exception as e:
+        except ChemistryError as e:
             msg = f"invalid smiles {ilt_entry.components[0].smiles}"
 
             raise EntryError(msg) from e
