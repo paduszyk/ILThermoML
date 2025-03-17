@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from ilthermoml.chemistry import IonicLiquid
+
 __all__ = [
     "Dataset",
     "Entry",
@@ -31,6 +33,9 @@ class Entry:
     dataset: InitVar[Dataset | None] = None
     """The dataset to which this entry belongs."""
 
+    ionic_liquid_id: str = field(init=False)
+    ionic_liquid: IonicLiquid = field(init=False)
+
     def __post_init__(self, dataset: Dataset | None) -> None:
         """Initialize the entry by retrieving data from ILThermo.
 
@@ -53,6 +58,19 @@ class Entry:
             raise EntryError(msg)
 
         self.data = ilt_entry.data.copy().rename(columns=ilt_entry.header)
+        self.ionic_liquid_id = ilt_entry.components[0].id
+
+        if smiles_error := ilt_entry.components[0].smiles_error:
+            msg = f"entry {self.id!r} has no smiles: {smiles_error}"
+
+            raise EntryError(msg)
+
+        try:
+            self.ionic_liquid = IonicLiquid(ilt_entry.components[0].smiles)
+        except Exception as e:
+            msg = f"invalid smiles {ilt_entry.components[0].smiles}"
+
+            raise EntryError(msg) from e
 
         if dataset:
             dataset.prepare_entry(self)
