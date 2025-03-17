@@ -99,50 +99,6 @@ class Dataset(ABC):
         )
 
     @property
-    def ions(self) -> pd.DataFrame:
-        cations = (
-            pd.DataFrame(
-                {
-                    "ionic_liquid_id": [
-                        entry.ionic_liquid_id for entry in self.entries
-                    ],
-                    "smiles": [
-                        entry.ionic_liquid.cation.smiles for entry in self.entries
-                    ],
-                },
-            )
-            .drop_duplicates(subset=["ionic_liquid_id"])
-            .set_index("ionic_liquid_id")
-        )
-
-        anions = (
-            pd.DataFrame(
-                {
-                    "ionic_liquid_id": [
-                        entry.ionic_liquid_id for entry in self.entries
-                    ],
-                    "smiles": [
-                        entry.ionic_liquid.anion.smiles for entry in self.entries
-                    ],
-                }
-            )
-            .drop_duplicates(subset=["ionic_liquid_id"])
-            .set_index("ionic_liquid_id")
-        )
-
-        return (
-            pd.concat(
-                {
-                    "anion": anions,
-                    "cation": cations,
-                },
-                names=["ion_type"],
-            )
-            .swaplevel()
-            .sort_index()
-        )
-
-    @property
     def data(self) -> pd.DataFrame:
         """Concatenate and return the data from all entries in the dataset.
 
