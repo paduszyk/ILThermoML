@@ -110,12 +110,9 @@ class Dataset(ABC):
         """
         if entries := self.entries:
             return pd.concat(
-                {
-                    entry.id: entry.data.assign(ionic_liquid_id=entry.ionic_liquid_id)
-                    for entry in entries
-                },
-                names=["entry_id", "data_point_id"],
-            )
+                {(entry.id, entry.ionic_liquid_id): entry.data for entry in entries},
+                names=["entry_id", "ionic_liquid_id", "data_point_id"],
+            ).sort_index()
 
         msg = "dataset is empty"
 
