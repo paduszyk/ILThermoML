@@ -377,3 +377,65 @@ def test_dataset_raises_dataset_error_if_entry_list_empty() -> None:
     # Act & assert.
     with pytest.raises(DatasetError):
         _ = dataset.data
+
+
+def test_dataset_ionic_liquid_returns_list_of_ionic_liquid_ids(
+    mocker: MockerFixture,
+) -> None:
+    # Mock.
+    def mock_get_entry(code: str) -> Any:
+        if code == "id_a":
+            return mocker.Mock(
+                header={"mock_header": "mock_header"},
+                data=pd.DataFrame({"mock_header": []}),
+                components=[
+                    mocker.Mock(
+                        autospec=ILThermoPyCompound(
+                            id="mock_id_a",
+                            name="mock_name_a",
+                        ),
+                        id="mock_id_a",
+                        smiles="CC[NH3+].[Cl-]",
+                    ),
+                ],
+            )
+        if code == "id_b":
+            return mocker.Mock(
+                header={"mock_header": "mock_header"},
+                data=pd.DataFrame({"mock_header": []}),
+                components=[
+                    mocker.Mock(
+                        autospec=ILThermoPyCompound(
+                            id="mock_id_b",
+                            name="mock_name_b",
+                        ),
+                        id="mock_id_b",
+                        smiles="CC[NH3+].[Cl-]",
+                    ),
+                ],
+            )
+        return mocker.Mock()
+
+    mocker.patch("ilthermoml.dataset.GetEntry", side_effect=mock_get_entry)
+
+    # Arrange.
+    expected_ionic_liquids = pd.DataFrame(
+        {
+            "ionic_liquid_id": ["mock_id_a", "mock_id_b"],
+        },
+    ).set_index("ionic_liquid_id")
+
+    class MockDataset(Dataset):
+        @staticmethod
+        def get_entry_ids() -> list[str]:
+            return ["id_a", "id_b"]
+
+        @staticmethod
+        def prepare_entry(entry: Entry) -> None:
+            pass
+
+    dataset = MockDataset()
+    dataset.populate()
+
+    # Act & assert.
+    pd.testing.assert_frame_equal(expected_ionic_liquids, dataset.ionic_liquids)
