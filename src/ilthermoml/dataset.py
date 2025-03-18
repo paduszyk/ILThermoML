@@ -86,6 +86,20 @@ class Dataset(ABC):
     """The list of entries in the dataset."""
 
     @property
+    def ionic_liquids(self) -> pd.DataFrame:
+        entries = self.entries
+
+        return (
+            pd.DataFrame(
+                {
+                    "ionic_liquid_id": [entry.ionic_liquid.id for entry in entries],
+                }
+            )
+            .drop_duplicates()
+            .set_index("ionic_liquid_id", drop=True)
+        )
+
+    @property
     def data(self) -> pd.DataFrame:
         """Concatenate and return the data from all entries in the dataset.
 
