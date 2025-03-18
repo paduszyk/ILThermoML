@@ -85,11 +85,6 @@ class Dataset(ABC):
     """The list of entries in the dataset."""
 
     @property
-    def ionic_liquids(self) -> list[IonicLiquid]:
-        """Return the list of ionic liquids in the dataset."""
-        return [entry.ionic_liquid for entry in self.entries]
-
-    @property
     def data(self) -> pd.DataFrame:
         """Concatenate and return the data from all entries in the dataset.
 
