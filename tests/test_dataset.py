@@ -133,6 +133,54 @@ def test_entry_is_prepared_when_instantiated_with_dataset(
     mock_dataset.prepare_entry.assert_called_once()
 
 
+def test_entry_fails_when_no_smiles(
+    mocker: MockerFixture,
+) -> None:
+    # Mock.
+    mocker.patch(
+        "ilthermoml.dataset.GetEntry",
+        return_value=mocker.Mock(
+            components=[
+                mocker.Mock(
+                    autospec=ILThermoPyCompound(
+                        id="mock_id",
+                        name="mock_name",
+                    ),
+                    smiles=None,
+                ),
+            ],
+        ),
+    )
+
+    # Act & assert.
+    with pytest.raises(EntryError):
+        Entry("mock_id")
+
+
+def test_entry_fails_when_smiles_invalid(
+    mocker: MockerFixture,
+) -> None:
+    # Mock
+    mocker.patch(
+        "ilthermoml.dataset.GetEntry",
+        return_value=mocker.Mock(
+            components=[
+                mocker.Mock(
+                    autospec=ILThermoPyCompound(
+                        id="mock_id",
+                        name="mock_name",
+                    ),
+                    smiles="[Na+].[Cl-]",
+                ),
+            ],
+        ),
+    )
+
+    # Act & assert.
+    with pytest.raises(EntryError):
+        Entry("mock_id")
+
+
 def test_dataset_populate_attempts_to_retrieve_entry_ids(
     mocker: MockerFixture,
 ) -> None:
