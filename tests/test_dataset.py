@@ -133,7 +133,7 @@ def test_entry_is_prepared_when_instantiated_with_dataset(
     mock_dataset.prepare_entry.assert_called_once()
 
 
-def test_entry_fails_when_no_smiles(
+def test_entry_raises_entry_error_when_no_smiles(
     mocker: MockerFixture,
 ) -> None:
     # Mock.
@@ -157,7 +157,7 @@ def test_entry_fails_when_no_smiles(
         Entry("mock_id")
 
 
-def test_entry_fails_when_smiles_invalid(
+def test_entry_raises_entry_error_when_smiles_invalid(
     mocker: MockerFixture,
 ) -> None:
     # Mock
