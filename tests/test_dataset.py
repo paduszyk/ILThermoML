@@ -17,7 +17,20 @@ def test_entry_attempts_to_retrieve_entry_from_ilthermo(
     mocker: MockerFixture,
 ) -> None:
     # Mock.
-    mock_get_entry = mocker.patch("ilthermoml.dataset.GetEntry")
+    mock_get_entry = mocker.patch(
+        "ilthermoml.dataset.GetEntry",
+        return_value=mocker.Mock(
+            components=[
+                mocker.Mock(
+                    autospec=ILThermoPyCompound(
+                        id="mock_id",
+                        name="mock_name",
+                    ),
+                    smiles="CC[NH3+].[Cl-]",
+                ),
+            ],
+        ),
+    )
 
     # Act.
     Entry("mock_id")
@@ -77,7 +90,8 @@ def test_entry_updates_ilthermo_entry_data_columns_with_header(
                     autospec=ILThermoPyCompound(
                         id="mock_id",
                         name="mock_name",
-                    )
+                    ),
+                    smiles="CC[NH3+].[Cl-]",
                 ),
             ],
         ),
@@ -97,7 +111,20 @@ def test_entry_is_prepared_when_instantiated_with_dataset(
     mock_dataset = mocker.Mock()
 
     # Mock.
-    mocker.patch("ilthermoml.dataset.GetEntry")
+    mocker.patch(
+        "ilthermoml.dataset.GetEntry",
+        return_value=mocker.Mock(
+            components=[
+                mocker.Mock(
+                    autospec=ILThermoPyCompound(
+                        id="mock_id",
+                        name="mock_name",
+                    ),
+                    smiles="CC[NH3+].[Cl-]",
+                ),
+            ],
+        ),
+    )
 
     # Act.
     Entry("mock_id", mock_dataset)
@@ -150,7 +177,20 @@ def test_dataset_populate_append_entries_with_ids_retrieved(
     dataset = TestDataset()
 
     # Mock.
-    mocker.patch("ilthermoml.dataset.GetEntry")
+    mocker.patch(
+        "ilthermoml.dataset.GetEntry",
+        return_value=mocker.Mock(
+            components=[
+                mocker.Mock(
+                    autospec=ILThermoPyCompound(
+                        id="mock_id",
+                        name="mock_name",
+                    ),
+                    smiles="CC[NH3+].[Cl-]",
+                ),
+            ],
+        ),
+    )
 
     # Act.
     dataset.populate()
@@ -186,7 +226,8 @@ def test_dataset_populate_skips_entries_that_cannot_be_retrieved(
                     autospec=ILThermoPyCompound(
                         id="mock_id",
                         name="mock_name",
-                    )
+                    ),
+                    smiles="CC[NH3+].[Cl-]",
                 ),
             ],
         )
@@ -215,7 +256,8 @@ def test_dataset_data_returns_concatenated_entries(
                         autospec=ILThermoPyCompound(
                             id="mock_id_a",
                             name="mock_name_a",
-                        )
+                        ),
+                        smiles="CC[NH3+].[Cl-]",
                     ),
                 ],
             )
@@ -228,7 +270,8 @@ def test_dataset_data_returns_concatenated_entries(
                         autospec=ILThermoPyCompound(
                             id="mock_id_b",
                             name="mock_name_b",
-                        )
+                        ),
+                        smiles="CC[NH3+].[Cl-]",
                     ),
                 ],
             )
