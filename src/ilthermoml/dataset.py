@@ -12,7 +12,8 @@ import ilthermopy as ilt
 import pandas as pd
 from tqdm import tqdm
 
-from .exceptions import DatasetError, EntryError
+from .chemistry import IonicLiquid
+from .exceptions import ChemistryError, DatasetError, EntryError
 from .memory import ilt_memory
 
 GetEntry = ilt_memory.cache(ilt.GetEntry)
@@ -24,6 +25,9 @@ class Entry:
 
     id: str
     """The identifier of the entry."""
+
+    ionic_liquid: IonicLiquid = field(init=False, repr=False)
+    """The ionic liquid associated with the entry."""
 
     data: pd.DataFrame = field(init=False, repr=False)
     """The data associated with the entry."""
@@ -47,10 +51,25 @@ class Entry:
 
             raise EntryError(msg) from e
 
-        if len(ilt_entry.components) > 1:
+        if len(components := ilt_entry.components) > 1:
             msg = "entries with multiple components are not supported"
 
             raise EntryError(msg)
+
+        if not (ionic_liquid_smiles := components[0].smiles):
+            msg = "could not retrieve ionic liquid SMILES from entry {self.id!r}"
+
+            raise EntryError(msg)
+
+        try:
+            self.ionic_liquid = IonicLiquid(ionic_liquid_smiles, id=self.id)
+        except ChemistryError as e:
+            msg = (
+                f"could not instantiate IonicLiquid from SMILES "
+                f"{ionic_liquid_smiles!r}: {e}"
+            )
+
+            raise EntryError(msg) from e
 
         self.data = ilt_entry.data.copy().rename(columns=ilt_entry.header)
 
@@ -64,6 +83,11 @@ class Dataset(ABC):
 
     entries: list[Entry] = field(default_factory=list, init=False, repr=False)
     """The list of entries in the dataset."""
+
+    @property
+    def ionic_liquids(self) -> list[IonicLiquid]:
+        """Return the list of ionic liquids in the dataset."""
+        return [entry.ionic_liquid for entry in self.entries]
 
     @property
     def data(self) -> pd.DataFrame:
