@@ -170,7 +170,7 @@ def test_entry_raises_entry_error_when_smiles_invalid(
                         id="mock_id",
                         name="mock_name",
                     ),
-                    smiles="[Na+].[Cl-]",
+                    smiles="mock_invalid_smiles",
                 ),
             ],
         ),
