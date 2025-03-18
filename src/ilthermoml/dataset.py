@@ -56,13 +56,14 @@ class Entry:
 
             raise EntryError(msg)
 
-        if not (ionic_liquid_smiles := components[0].smiles):
+        ionic_liquid = components[0]
+        if not (ionic_liquid_smiles := ionic_liquid.smiles):
             msg = "could not retrieve ionic liquid SMILES from entry {self.id!r}"
 
             raise EntryError(msg)
 
         try:
-            self.ionic_liquid = IonicLiquid(ionic_liquid_smiles, id=self.id)
+            self.ionic_liquid = IonicLiquid(ionic_liquid_smiles, id=ionic_liquid.id)
         except ChemistryError as e:
             msg = (
                 f"could not instantiate IonicLiquid from SMILES "
