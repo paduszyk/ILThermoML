@@ -164,6 +164,9 @@ class Salt:
 class IonicLiquid(Salt):
     """Represents an ionic liquid."""
 
+    id: str | None = field(default=None, repr=False)
+    """The ILThermo identifier of the ionic liquid."""
+
     def __post_init__(self) -> None:
         super().__post_init__()
 
