@@ -422,6 +422,8 @@ def test_dataset_ionic_liquid_returns_list_of_ionic_liquid_ids(
     expected_ionic_liquids = pd.DataFrame(
         {
             "ionic_liquid_id": ["mock_id_a", "mock_id_b"],
+            "cation_id": [0, 0],
+            "anion_id": [1, 1],
         },
     ).set_index("ionic_liquid_id")
 

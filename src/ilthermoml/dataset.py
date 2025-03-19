@@ -86,13 +86,39 @@ class Dataset(ABC):
     """The list of entries in the dataset."""
 
     @property
+    def ions(self) -> pd.DataFrame:
+        entries = self.entries
+
+        ions = (
+            pd.DataFrame(
+                {
+                    "ion": [entry.ionic_liquid.cation.smiles for entry in entries]
+                    + [entry.ionic_liquid.anion.smiles for entry in entries],
+                }
+            )
+            .drop_duplicates()
+            .reset_index(drop=True)
+        )
+        ions.index = ions.index.set_names(["ion_id"])
+        return ions
+
+    @property
     def ionic_liquids(self) -> pd.DataFrame:
         entries = self.entries
+        ions = self.ions
 
         return (
             pd.DataFrame(
                 {
                     "ionic_liquid_id": [entry.ionic_liquid.id for entry in entries],
+                    "cation_id": [
+                        ions[ions["ion"] == entry.ionic_liquid.cation.smiles].index[0]
+                        for entry in entries
+                    ],
+                    "anion_id": [
+                        ions[ions["ion"] == entry.ionic_liquid.anion.smiles].index[0]
+                        for entry in entries
+                    ],
                 }
             )
             .drop_duplicates()
