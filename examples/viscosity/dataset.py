@@ -18,7 +18,7 @@ class Dataset(ilthermoml.Dataset):
             & search["cmp1_smiles"].apply(is_binary_smiles)
         ]
 
-        return list(search["id"])
+        return list(search["id"])[:100]
 
     @staticmethod
     def prepare_entry(entry: ilthermoml.Entry) -> None:
