@@ -1,6 +1,11 @@
 from __future__ import annotations
 
-from ilthermoml.chemistry import IonicLiquid
+from typing import TYPE_CHECKING, cast
+
+from ilthermoml.chemistry import Anion, Cation, IonicLiquid
+
+if TYPE_CHECKING:
+    from ilthermoml.chemistry import Ion
 
 __all__ = [
     "Dataset",
@@ -83,6 +88,14 @@ class Dataset(ABC):
     entries: list[Entry] = field(default_factory=list, init=False, repr=False)
     """The list of entries in the dataset."""
 
+    ionic_liquids: list[IonicLiquid] = field(
+        default_factory=list, init=False, repr=False
+    )
+
+    ions: list[Ion | Cation | Anion] = field(
+        default_factory=list, init=False, repr=False
+    )
+
     @property
     def data(self) -> pd.DataFrame:
         """Concatenate and return the data from all entries in the dataset.
@@ -130,5 +143,26 @@ class Dataset(ABC):
                 entry = Entry(entry_id, dataset=self)
             except EntryError:
                 continue
+
+            if entry.ionic_liquid not in self.ionic_liquids:
+                if entry.ionic_liquid.cation not in self.ions:
+                    self.ions.append(entry.ionic_liquid.cation)
+                else:
+                    entry.ionic_liquid.cation = cast(
+                        Cation, self.ions[self.ions.index(entry.ionic_liquid.cation)]
+                    )
+
+                if entry.ionic_liquid.anion not in self.ions:
+                    self.ions.append(entry.ionic_liquid.anion)
+                else:
+                    entry.ionic_liquid.anion = cast(
+                        Anion, self.ions[self.ions.index(entry.ionic_liquid.anion)]
+                    )
+
+                self.ionic_liquids.append(entry.ionic_liquid)
+            else:
+                entry.ionic_liquid = self.ionic_liquids[
+                    self.ionic_liquids.index(entry.ionic_liquid)
+                ]
 
             self.entries.append(entry)
