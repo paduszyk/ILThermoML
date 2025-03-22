@@ -29,7 +29,7 @@ class Molecule(ABC):
     smiles: str
     """The SMILES representation of the molecule."""
 
-    _rdkit_mol: Chem.Mol = field(init=False, repr=False)
+    _rdkit_mol: Chem.Mol = field(init=False, repr=False, compare=False)
     """The wrapped RDKit molecule object."""
 
     @abstractmethod

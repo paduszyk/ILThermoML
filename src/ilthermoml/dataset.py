@@ -1,5 +1,12 @@
 from __future__ import annotations
 
+from typing import TYPE_CHECKING, cast
+
+from ilthermoml.chemistry import Anion, Cation, IonicLiquid
+
+if TYPE_CHECKING:
+    from ilthermoml.chemistry import Ion
+
 __all__ = [
     "Dataset",
     "Entry",
@@ -73,6 +80,19 @@ class Entry:
             raise EntryError(msg) from e
 
         self.data = ilt_entry.data.copy().rename(columns=ilt_entry.header)
+        self.ionic_liquid_id = ilt_entry.components[0].id
+
+        if smiles_error := ilt_entry.components[0].smiles_error:
+            msg = f"entry {self.id!r} has no smiles: {smiles_error}"
+
+            raise EntryError(msg)
+
+        try:
+            self.ionic_liquid = IonicLiquid(ilt_entry.components[0].smiles)
+        except Exception as e:
+            msg = f"invalid smiles {ilt_entry.components[0].smiles}"
+
+            raise EntryError(msg) from e
 
         if dataset:
             dataset.prepare_entry(self)
@@ -84,6 +104,14 @@ class Dataset(ABC):
 
     entries: list[Entry] = field(default_factory=list, init=False, repr=False)
     """The list of entries in the dataset."""
+
+    ionic_liquids: list[IonicLiquid] = field(
+        default_factory=list, init=False, repr=False
+    )
+
+    ions: list[Ion | Cation | Anion] = field(
+        default_factory=list, init=False, repr=False
+    )
 
     @property
     def ionic_liquids(self) -> pd.DataFrame:
@@ -146,5 +174,26 @@ class Dataset(ABC):
                 entry = Entry(entry_id, dataset=self)
             except EntryError:
                 continue
+
+            if entry.ionic_liquid not in self.ionic_liquids:
+                if entry.ionic_liquid.cation not in self.ions:
+                    self.ions.append(entry.ionic_liquid.cation)
+                else:
+                    entry.ionic_liquid.cation = cast(
+                        Cation, self.ions[self.ions.index(entry.ionic_liquid.cation)]
+                    )
+
+                if entry.ionic_liquid.anion not in self.ions:
+                    self.ions.append(entry.ionic_liquid.anion)
+                else:
+                    entry.ionic_liquid.anion = cast(
+                        Anion, self.ions[self.ions.index(entry.ionic_liquid.anion)]
+                    )
+
+                self.ionic_liquids.append(entry.ionic_liquid)
+            else:
+                entry.ionic_liquid = self.ionic_liquids[
+                    self.ionic_liquids.index(entry.ionic_liquid)
+                ]
 
             self.entries.append(entry)
