@@ -4,7 +4,6 @@ from typing import TYPE_CHECKING, Any
 
 import pandas as pd
 import pytest
-from ilthermopy.data_structs import Compound as ILThermoPyCompound
 
 from ilthermoml.dataset import Dataset, Entry
 from ilthermoml.exceptions import DatasetError, EntryError
@@ -17,7 +16,21 @@ def test_entry_attempts_to_retrieve_entry_from_ilthermo(
     mocker: MockerFixture,
 ) -> None:
     # Mock.
-    mock_get_entry = mocker.patch("ilthermoml.dataset.GetEntry")
+    mock_get_entry = mocker.patch(
+        "ilthermoml.dataset.GetEntry",
+        return_value=mocker.Mock(
+            header={"V1": "mock_header"},
+            data=pd.DataFrame({"V1": []}),
+            components=[
+                mocker.Mock(
+                    id="mock_id",
+                    name="mock_name",
+                    smiles="C[NH3+].[Cl-]",
+                    smiles_error=None,
+                ),
+            ],
+        ),
+    )
 
     # Act.
     Entry("mock_id")
@@ -74,10 +87,10 @@ def test_entry_updates_ilthermo_entry_data_columns_with_header(
             data=pd.DataFrame({"V1": []}),
             components=[
                 mocker.Mock(
-                    autospec=ILThermoPyCompound(
-                        id="mock_id",
-                        name="mock_name",
-                    )
+                    id="mock_id",
+                    name="mock_name",
+                    smiles="C[NH3+].[Cl-]",
+                    smiles_error=None,
                 ),
             ],
         ),
@@ -97,7 +110,21 @@ def test_entry_is_prepared_when_instantiated_with_dataset(
     mock_dataset = mocker.Mock()
 
     # Mock.
-    mocker.patch("ilthermoml.dataset.GetEntry")
+    mocker.patch(
+        "ilthermoml.dataset.GetEntry",
+        return_value=mocker.Mock(
+            header={"V1": "mock_header"},
+            data=pd.DataFrame({"V1": []}),
+            components=[
+                mocker.Mock(
+                    id="mock_id",
+                    name="mock_name",
+                    smiles="C[NH3+].[Cl-]",
+                    smiles_error=None,
+                ),
+            ],
+        ),
+    )
 
     # Act.
     Entry("mock_id", mock_dataset)
@@ -150,7 +177,21 @@ def test_dataset_populate_append_entries_with_ids_retrieved(
     dataset = TestDataset()
 
     # Mock.
-    mocker.patch("ilthermoml.dataset.GetEntry")
+    mocker.patch(
+        "ilthermoml.dataset.GetEntry",
+        return_value=mocker.Mock(
+            header={"V1": "mock_header"},
+            data=pd.DataFrame({"V1": []}),
+            components=[
+                mocker.Mock(
+                    id="mock_id",
+                    name="mock_name",
+                    smiles="C[NH3+].[Cl-]",
+                    smiles_error=None,
+                ),
+            ],
+        ),
+    )
 
     # Act.
     dataset.populate()
@@ -183,10 +224,10 @@ def test_dataset_populate_skips_entries_that_cannot_be_retrieved(
         return mocker.Mock(
             components=[
                 mocker.Mock(
-                    autospec=ILThermoPyCompound(
-                        id="mock_id",
-                        name="mock_name",
-                    )
+                    id="mock_id",
+                    name="mock_name",
+                    smiles="C[NH3+].[Cl-]",
+                    smiles_error=None,
                 ),
             ],
         )
@@ -212,10 +253,10 @@ def test_dataset_data_returns_concatenated_entries(
                 data=pd.DataFrame({"mock_header": [1, 2, 3]}),
                 components=[
                     mocker.Mock(
-                        autospec=ILThermoPyCompound(
-                            id="mock_id_a",
-                            name="mock_name_a",
-                        )
+                        id="mock_id_a",
+                        name="mock_name_a",
+                        smiles="C[NH3+].[Cl-]",
+                        smiles_error=None,
                     ),
                 ],
             )
@@ -225,10 +266,10 @@ def test_dataset_data_returns_concatenated_entries(
                 data=pd.DataFrame({"mock_header": [4, 5, 6]}),
                 components=[
                     mocker.Mock(
-                        autospec=ILThermoPyCompound(
-                            id="mock_id_b",
-                            name="mock_name_b",
-                        )
+                        id="mock_id_b",
+                        name="mock_name_b",
+                        smiles="CC[NH3+].[Cl-]",
+                        smiles_error=None,
                     ),
                 ],
             )
