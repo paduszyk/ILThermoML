@@ -57,25 +57,29 @@ class Entry:
 
             raise EntryError(msg) from e
 
-        if len(ilt_entry.components) > 1:
+        if len(components := ilt_entry.components) > 1:
             msg = "entries with multiple components are not supported"
 
             raise EntryError(msg)
 
-        self.data = ilt_entry.data.copy().rename(columns=ilt_entry.header)
-        self.ionic_liquid_id = ilt_entry.components[0].id
-
-        if smiles_error := ilt_entry.components[0].smiles_error:
-            msg = f"entry {self.id!r} has no smiles: {smiles_error}"
+        ionic_liquid = components[0]
+        if not (ionic_liquid_smiles := ionic_liquid.smiles):
+            msg = f"could not retrieve ionic liquid SMILES from entry {self.id!r}"
 
             raise EntryError(msg)
 
         try:
-            self.ionic_liquid = IonicLiquid(ilt_entry.components[0].smiles)
+            self.ionic_liquid = IonicLiquid(ionic_liquid_smiles, id=ionic_liquid.id)
         except ChemistryError as e:
-            msg = f"invalid smiles {ilt_entry.components[0].smiles}"
+            msg = (
+                f"could not instantiate IonicLiquid from SMILES "
+                f"{ionic_liquid_smiles!r}: {e}"
+            )
 
             raise EntryError(msg) from e
+
+        self.data = ilt_entry.data.copy().rename(columns=ilt_entry.header)
+        self.ionic_liquid_id = ilt_entry.components[0].id
 
         if dataset:
             dataset.prepare_entry(self)
