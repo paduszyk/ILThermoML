@@ -57,6 +57,56 @@ def test_entry_raises_entry_error_if_ilthermo_entry_cannot_be_retrieved(
         Entry("mock_id")
 
 
+def test_entry_raises_entry_error_if_ilthermo_entry_has_no_smiles(
+    mocker: MockerFixture,
+) -> None:
+    # Mock.
+    mocker.patch(
+        "ilthermoml.dataset.GetEntry",
+        return_value=mocker.Mock(
+            header={"V1": "mock_header"},
+            data=pd.DataFrame({"V1": []}),
+            components=[
+                mocker.Mock(
+                    id="mock_id",
+                    name="mock_name",
+                    smiles=None,
+                    smiles_error="Smiles not provided test",
+                ),
+            ],
+        ),
+    )
+
+    # Act & assert.
+    with pytest.raises(EntryError):
+        Entry("mock_id")
+
+
+def test_entry_raises_entry_error_if_smiles_is_invalid(
+    mocker: MockerFixture,
+) -> None:
+    # Mock.
+    mocker.patch(
+        "ilthermoml.dataset.GetEntry",
+        return_value=mocker.Mock(
+            header={"V1": "mock_header"},
+            data=pd.DataFrame({"V1": []}),
+            components=[
+                mocker.Mock(
+                    id="mock_id",
+                    name="mock_name",
+                    smiles="[Na+].[Cl-]",
+                    smiles_error=None,
+                ),
+            ],
+        ),
+    )
+
+    # Act & assert.
+    with pytest.raises(EntryError):
+        Entry("mock_id")
+
+
 def test_entry_raises_entry_error_if_entry_has_multiple_components(
     mocker: MockerFixture,
 ) -> None:
@@ -327,3 +377,73 @@ def test_dataset_raises_dataset_error_if_entry_list_empty() -> None:
     # Act & assert.
     with pytest.raises(DatasetError):
         _ = dataset.data
+
+
+def test_populate_dataset_ions_and_ionic_liquids(
+    mocker: MockerFixture,
+) -> None:
+    # Mock.
+    def mock_get_entry(code: str) -> Any:
+        if code == "id_a":
+            return mocker.Mock(
+                header={"mock_header": "mock_header"},
+                data=pd.DataFrame({"mock_header": [1, 2, 3]}),
+                components=[
+                    mocker.Mock(
+                        id="mock_id_a",
+                        name="mock_name_a",
+                        smiles="C[NH3+].[Cl-]",
+                        smiles_error=None,
+                    ),
+                ],
+            )
+        if code == "id_b":
+            return mocker.Mock(
+                header={"mock_header": "mock_header"},
+                data=pd.DataFrame({"mock_header": [4, 5, 6]}),
+                components=[
+                    mocker.Mock(
+                        id="mock_id_b",
+                        name="mock_name_b",
+                        smiles="C[NH3+].[Br-]",
+                        smiles_error=None,
+                    ),
+                ],
+            )
+        if code == "id_c":
+            return mocker.Mock(
+                header={"mock_header": "mock_header"},
+                data=pd.DataFrame({"mock_header": [4, 5, 6]}),
+                components=[
+                    mocker.Mock(
+                        id="mock_id_c",
+                        name="mock_name_c",
+                        smiles="CC[NH3+].[Br-]",
+                        smiles_error=None,
+                    ),
+                ],
+            )
+        return mocker.Mock()
+
+    mocker.patch("ilthermoml.dataset.GetEntry", side_effect=mock_get_entry)
+
+    class MockDataset(Dataset):
+        @staticmethod
+        def get_entry_ids() -> list[str]:
+            return ["id_a", "id_b", "id_c"]
+
+        @staticmethod
+        def prepare_entry(entry: Entry) -> None:
+            pass
+
+    dataset = MockDataset()
+
+    # Act.
+    dataset.populate()
+
+    # Assert.
+    assert len(dataset.ionic_liquids) == len(
+        {ionic_liquid.smiles for ionic_liquid in dataset.ionic_liquids}
+    )
+
+    assert len(dataset.ions) == len({ion.smiles for ion in dataset.ions})
