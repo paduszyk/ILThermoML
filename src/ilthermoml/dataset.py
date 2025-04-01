@@ -95,10 +95,12 @@ class Dataset(ABC):
     ionic_liquids: list[IonicLiquid] = field(
         default_factory=list, init=False, repr=False
     )
+    """The list of ionic liquids in the dataset"""
 
     ions: list[Ion | Cation | Anion] = field(
         default_factory=list, init=False, repr=False
     )
+    """The list of ions in the dataset"""
 
     @property
     def data(self) -> pd.DataFrame:
