@@ -1,5 +1,12 @@
 from __future__ import annotations
 
+from typing import TYPE_CHECKING, cast
+
+from ilthermoml.chemistry import Anion, Cation, IonicLiquid
+
+if TYPE_CHECKING:
+    from ilthermoml.chemistry import Ion
+
 __all__ = [
     "Dataset",
     "Entry",
@@ -12,7 +19,6 @@ import ilthermopy as ilt
 import pandas as pd
 from tqdm import tqdm
 
-from .chemistry import IonicLiquid
 from .exceptions import ChemistryError, DatasetError, EntryError
 from .memory import ilt_memory
 
@@ -58,7 +64,7 @@ class Entry:
 
         ionic_liquid = components[0]
         if not (ionic_liquid_smiles := ionic_liquid.smiles):
-            msg = "could not retrieve ionic liquid SMILES from entry {self.id!r}"
+            msg = f"could not retrieve ionic liquid SMILES from entry {self.id!r}"
 
             raise EntryError(msg)
 
@@ -73,6 +79,7 @@ class Entry:
             raise EntryError(msg) from e
 
         self.data = ilt_entry.data.copy().rename(columns=ilt_entry.header)
+        self.ionic_liquid_id = ilt_entry.components[0].id
 
         if dataset:
             dataset.prepare_entry(self)
@@ -85,19 +92,15 @@ class Dataset(ABC):
     entries: list[Entry] = field(default_factory=list, init=False, repr=False)
     """The list of entries in the dataset."""
 
-    @property
-    def ionic_liquids(self) -> pd.DataFrame:
-        entries = self.entries
+    ionic_liquids: list[IonicLiquid] = field(
+        default_factory=list, init=False, repr=False
+    )
+    """The list of ionic liquids in the dataset"""
 
-        return (
-            pd.DataFrame(
-                {
-                    "ionic_liquid_id": [entry.ionic_liquid.id for entry in entries],
-                }
-            )
-            .drop_duplicates()
-            .set_index("ionic_liquid_id", drop=True)
-        )
+    ions: list[Ion | Cation | Anion] = field(
+        default_factory=list, init=False, repr=False
+    )
+    """The list of ions in the dataset"""
 
     @property
     def data(self) -> pd.DataFrame:
@@ -146,5 +149,26 @@ class Dataset(ABC):
                 entry = Entry(entry_id, dataset=self)
             except EntryError:
                 continue
+
+            if entry.ionic_liquid not in self.ionic_liquids:
+                if entry.ionic_liquid.cation not in self.ions:
+                    self.ions.append(entry.ionic_liquid.cation)
+                else:
+                    entry.ionic_liquid.cation = cast(
+                        Cation, self.ions[self.ions.index(entry.ionic_liquid.cation)]
+                    )
+
+                if entry.ionic_liquid.anion not in self.ions:
+                    self.ions.append(entry.ionic_liquid.anion)
+                else:
+                    entry.ionic_liquid.anion = cast(
+                        Anion, self.ions[self.ions.index(entry.ionic_liquid.anion)]
+                    )
+
+                self.ionic_liquids.append(entry.ionic_liquid)
+            else:
+                entry.ionic_liquid = self.ionic_liquids[
+                    self.ionic_liquids.index(entry.ionic_liquid)
+                ]
 
             self.entries.append(entry)
