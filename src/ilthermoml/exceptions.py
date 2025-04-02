@@ -35,3 +35,7 @@ class IonicLiquidCationError(UnsupportedSaltTypeError):
 
 class InvalidChargeError(ChemistryError):
     """Exception raised for invalid charge values."""
+
+
+class FeaturizerError(ILThermoMLException):
+    """Exception raised for errors in descriptor calculations."""
