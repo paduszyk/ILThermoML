@@ -30,4 +30,4 @@ class MoleculeFeaturizer(ABC):
 
 class RDKitMoleculeFeaturizer(MoleculeFeaturizer):
     def _featurize(self, molecule: Molecule) -> dict[str, Any]:
-        return CalcMolDescriptors(molecule._rdkit_mol)  # type: ignore [no-untyped-call, no-any-return]
+        return CalcMolDescriptors(molecule.rdkit_mol)  # type: ignore [no-untyped-call, no-any-return]
