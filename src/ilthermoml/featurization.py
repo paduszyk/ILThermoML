@@ -1,10 +1,14 @@
 from abc import ABC, abstractmethod
 from typing import Any
 
+import padelpy  # type: ignore [import-untyped]
 from rdkit.Chem.Descriptors import CalcMolDescriptors
 
 from .chemistry import Molecule
 from .exceptions import FeaturizerError
+from .memory import ilt_memory
+
+padel_calc_descriptors = ilt_memory.cache(padelpy.from_smiles)
 
 
 class MoleculeFeaturizer(ABC):
@@ -31,3 +35,8 @@ class MoleculeFeaturizer(ABC):
 class RDKitMoleculeFeaturizer(MoleculeFeaturizer):
     def _featurize(self, molecule: Molecule) -> dict[str, Any]:
         return CalcMolDescriptors(molecule.rdkit_mol)  # type: ignore [no-untyped-call, no-any-return]
+
+
+class PadelMoleculeFeaturizer(MoleculeFeaturizer):
+    def _featurize(self, molecule: Molecule) -> dict[str, Any]:
+        return padel_calc_descriptors(molecule.smiles)  # type: ignore [no-any-return]
