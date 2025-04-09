@@ -29,7 +29,7 @@ class Molecule(ABC):
     smiles: str
     """The SMILES representation of the molecule."""
 
-    _rdkit_mol: Chem.Mol = field(init=False, repr=False, compare=False)
+    rdkit_mol: Chem.Mol = field(init=False, repr=False, compare=False)
     """The wrapped RDKit molecule object."""
 
     @abstractmethod
@@ -38,11 +38,11 @@ class Molecule(ABC):
 
     def __post_init__(self) -> None:
         """Initialize the RDKit molecule and perform post-initialization checks."""
-        self._rdkit_mol = Chem.MolFromSmiles(self.smiles)
+        self.rdkit_mol = Chem.MolFromSmiles(self.smiles)
 
         # SMILES is reassigned to ensure that it is canonical. Stereochemistry
         # and E/Z isomerism are also discarded.
-        self.smiles = Chem.MolToSmiles(self._rdkit_mol, isomericSmiles=False)
+        self.smiles = Chem.MolToSmiles(self.rdkit_mol, isomericSmiles=False)
 
         # Perform additional checks.
         self.post_init_check()
@@ -53,14 +53,14 @@ class Molecule(ABC):
         """Return `True` if the molecule is organic, `False` otherwise."""
         return any(
             atom.GetSymbol() == "C"
-            for atom in self._rdkit_mol.GetAtoms()  # type: ignore[no-untyped-call]
+            for atom in self.rdkit_mol.GetAtoms()  # type: ignore[no-untyped-call]
             if atom.GetAtomicNum()
         )
 
     @property
     def charge_number(self) -> int:
         """Return the formal charge of the molecule."""
-        return Chem.GetFormalCharge(self._rdkit_mol)
+        return Chem.GetFormalCharge(self.rdkit_mol)
 
 
 @dataclass
