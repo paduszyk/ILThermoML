@@ -14,7 +14,7 @@ class MoleculeFeaturizer(ABC):
         if any(
             [
                 not descriptors,
-                any(descriptor for descriptor in descriptors.values()),
+                all(not descriptor for descriptor in descriptors.values()),
             ]
         ):
             msg = f"Unable to calculate descriptors for {molecule!r}"
