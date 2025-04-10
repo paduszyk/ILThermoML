@@ -12,6 +12,8 @@ padel_calc_descriptors = ilt_memory.cache(padelpy.from_smiles)
 
 
 class MoleculeFeaturizer(ABC):
+    """Abstract class describing molecule featurizers."""
+
     def __call__(self, molecule: Molecule) -> dict[str, Any]:
         descriptors = self._featurize(molecule)
 
@@ -33,10 +35,14 @@ class MoleculeFeaturizer(ABC):
 
 
 class RDKitMoleculeFeaturizer(MoleculeFeaturizer):
+    """Moleclue featurizer class for calculating descriptors using RDKit."""
+
     def _featurize(self, molecule: Molecule) -> dict[str, Any]:
         return CalcMolDescriptors(molecule.rdkit_mol)  # type: ignore [no-untyped-call, no-any-return]
 
 
 class PadelMoleculeFeaturizer(MoleculeFeaturizer):
+    """Moleclue featurizer class for calculating descriptors using padel."""
+
     def _featurize(self, molecule: Molecule) -> dict[str, Any]:
         return padel_calc_descriptors(molecule.smiles)  # type: ignore [no-any-return]
