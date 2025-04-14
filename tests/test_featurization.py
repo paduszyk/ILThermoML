@@ -6,7 +6,11 @@ import pytest
 
 from ilthermoml.chemistry import Ion
 from ilthermoml.exceptions import FeaturizerError
-from ilthermoml.featurization import MoleculeFeaturizer, RDKitMoleculeFeaturizer
+from ilthermoml.featurization import (
+    MoleculeFeaturizer,
+    PadelMoleculeFeaturizer,
+    RDKitMoleculeFeaturizer,
+)
 
 if TYPE_CHECKING:
     from pytest_mock import MockerFixture
@@ -51,3 +55,23 @@ def test_rdkit_molecule_featurizer_attempts_calculating_descriptors(
 
     # Assert
     mock_calc_descriptors.assert_called_once_with(molecule.rdkit_mol)
+
+
+def test_padel_molecule_featurizer_attempts_calculating_descriptors(
+    mocker: MockerFixture,
+) -> None:
+    # Mock.
+    mock_calc_descriptors = mocker.patch(
+        "ilthermoml.featurization.padel_calc_descriptors",
+        return_value={"Test": "Test"},
+    )
+
+    # Arrange.
+    featurize = PadelMoleculeFeaturizer()
+    molecule = Ion("[Na+]")
+
+    # Act.
+    featurize(molecule)
+
+    # Assert
+    mock_calc_descriptors.assert_called_once_with(molecule.smiles)
