@@ -6,16 +6,19 @@ updates:
     schedule:
       interval: weekly
     labels:
-      - maintenance
+      - "type: maintenance"
+      - "priority: low"
   - package-ecosystem: npm
     directory: /
     schedule:
       interval: weekly
     labels:
-      - maintenance
+      - "type: maintenance"
+      - "priority: low"
   - package-ecosystem: github-actions
     directory: /
     schedule:
       interval: weekly
     labels:
-      - maintenance
+      - "type: maintenance"
+      - "priority: low"
