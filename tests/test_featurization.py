@@ -7,6 +7,7 @@ import pytest
 from ilthermoml.chemistry import Ion
 from ilthermoml.exceptions import FeaturizerError
 from ilthermoml.featurization import (
+    CachingMoleculeFeaturizer,
     MoleculeFeaturizer,
     PadelMoleculeFeaturizer,
     RDKitMoleculeFeaturizer,
@@ -99,3 +100,21 @@ def test_padel_molecule_featurizer_converts_output_to_floats(
     # Assert
     assert type(desctriptors["TestConvertable"]) is float
     assert type(desctriptors["TestUnconvertable"]) is str
+
+
+def test_cahing_molecule_featurizer_calls_inner_featurizer_only_once(
+    mocker: MockerFixture,
+) -> None:
+    # Spy.
+    spy_featurizer = mocker.spy(RDKitMoleculeFeaturizer(), "__call__")
+
+    # Arrange.
+    featurize = CachingMoleculeFeaturizer(spy_featurizer)
+    molecule = Ion("[Na+]")
+
+    # Act.
+    featurize(molecule)
+    featurize(molecule)
+
+    # Assert
+    spy_featurizer.assert_called_once_with(molecule)
