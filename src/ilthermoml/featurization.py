@@ -45,4 +45,11 @@ class PadelMoleculeFeaturizer(MoleculeFeaturizer):
     """Molecule featurizer class for calculating descriptors using padel."""
 
     def _featurize(self, molecule: Molecule) -> dict[str, Any]:
-        return padel_calc_descriptors(molecule.smiles)  # type: ignore [no-any-return]
+        descriptors = padel_calc_descriptors(molecule.smiles)
+        for key, value in descriptors.items():
+            try:
+                descriptors[key] = float(value)
+            except ValueError:
+                continue
+
+        return descriptors  # type: ignore [no-any-return]
