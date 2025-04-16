@@ -1,10 +1,11 @@
 from abc import ABC, abstractmethod
+from collections.abc import Callable
 from typing import Any
 
 import padelpy  # type: ignore [import-untyped]
 from rdkit.Chem.Descriptors import CalcMolDescriptors
 
-from .chemistry import Molecule
+from .chemistry import Molecule, Salt
 from .exceptions import FeaturizerError
 from .memory import ilt_memory
 
@@ -66,3 +67,33 @@ class CachingMoleculeFeaturizer(MoleculeFeaturizer):
         if molecule.smiles not in self._cache:
             self._cache[molecule.smiles] = self._inner_featurize(molecule)
         return self._cache[molecule.smiles]
+
+
+class SaltFeaturizer:
+    """Class for calculating salt descriptors."""
+
+    def __init__(
+        self,
+        combination_rule: Callable[[Any, Any], Any],
+        featurize: MoleculeFeaturizer,
+    ) -> None:
+        self.combination_rule = combination_rule
+        self.featurize = CachingMoleculeFeaturizer(featurize)
+
+    def __call__(self, salt: Salt) -> dict[str, Any]:
+        cation_features = self.featurize(salt.cation)
+        anion_features = self.featurize(salt.anion)
+
+        output_keys = set(list(cation_features) + list(anion_features))
+        output_values: list[Any] = []
+
+        for key in output_keys:
+            if not cation_features[key] or not anion_features[key]:
+                output_values.append(None)
+                continue
+
+            output_values.append(
+                self.combination_rule(cation_features[key], anion_features[key])
+            )
+
+        return dict(zip(output_keys, output_values, strict=True))
