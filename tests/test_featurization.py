@@ -1,16 +1,17 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 import pytest
 
-from ilthermoml.chemistry import Ion
+from ilthermoml.chemistry import Ion, Salt
 from ilthermoml.exceptions import FeaturizerError
 from ilthermoml.featurization import (
     CachingMoleculeFeaturizer,
     MoleculeFeaturizer,
     PadelMoleculeFeaturizer,
     RDKitMoleculeFeaturizer,
+    SaltFeaturizer,
 )
 
 if TYPE_CHECKING:
@@ -118,3 +119,50 @@ def test_cahing_molecule_featurizer_calls_inner_featurizer_only_once(
 
     # Assert
     spy_featurizer.assert_called_once_with(molecule)
+
+
+def test_salt_featurizer_calculates_values_using_combination_rule_and_featurizer(
+    mocker: MockerFixture,
+) -> None:
+    # Spy.
+    def test_rule(x: Any, y: Any) -> Any:
+        return (x + y) / 2
+
+    spy_rule = mocker.spy(test_rule, "__call__")
+
+    # Mock.
+    mock_featurizer = mocker.MagicMock(return_value={"Test": 1.0})
+
+    # Arrange.
+    featurize = SaltFeaturizer(spy_rule, mock_featurizer)
+
+    ions_in_salt = 2
+    descriptors_per_ion = 1
+    salt = Salt("[Na+].[Cl-]")
+
+    # Act.
+    featurize(salt)
+
+    # Assert.
+    assert spy_rule.call_count == descriptors_per_ion
+    assert mock_featurizer.call_count == ions_in_salt
+
+
+def test_salt_featurizer_value_is_none_when_descriptor_is_none() -> None:
+    # Arrange.
+    def test_rule(x: Any, y: Any) -> Any:
+        return (x + y) / 2
+
+    def test_get_descriptors(molecule: Molecule) -> dict[str, Any]:
+        if molecule.smiles == "[Na+]":
+            return {"Test": 1.0, "Other": 1.0}
+        if molecule.smiles == "[Cl-]":
+            return {"Test": None, "Other": 1.0}
+
+        return {"Test": None, "Other": 1.0}
+
+    featurize = SaltFeaturizer(test_rule, test_get_descriptors)  # type: ignore [arg-type]
+    salt = Salt("[Na+].[Cl-]")
+
+    # Act & assert.
+    assert not featurize(salt)["Test"]
