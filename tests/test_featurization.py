@@ -75,3 +75,27 @@ def test_padel_molecule_featurizer_attempts_calculating_descriptors(
 
     # Assert
     mock_calc_descriptors.assert_called_once_with(molecule.smiles)
+
+
+def test_padel_molecule_featurizer_converts_output_to_floats(
+    mocker: MockerFixture,
+) -> None:
+    # Mock.
+    mocker.patch(
+        "ilthermoml.featurization.padel_calc_descriptors",
+        return_value={
+            "TestConvertable": "0.15",
+            "TestUnconvertable": "Unconvertable",
+        },
+    )
+
+    # Arrange.
+    featurize = PadelMoleculeFeaturizer()
+    molecule = Ion("[Na+]")
+
+    # Act.
+    desctriptors = featurize(molecule)
+
+    # Assert
+    assert type(desctriptors["TestConvertable"]) is float
+    assert type(desctriptors["TestUnconvertable"]) is str
