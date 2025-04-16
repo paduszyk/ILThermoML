@@ -53,3 +53,16 @@ class PadelMoleculeFeaturizer(MoleculeFeaturizer):
                 continue
 
         return descriptors  # type: ignore [no-any-return]
+
+
+class CachingMoleculeFeaturizer(MoleculeFeaturizer):
+    """Wrapper molecule featurizer class that caches calculated descriptors."""
+
+    def __init__(self, featurizer: MoleculeFeaturizer) -> None:
+        self._inner_featurize = featurizer
+        self._cache: dict[str, dict[str, Any]] = {}
+
+    def _featurize(self, molecule: Molecule) -> dict[str, Any]:
+        if molecule.smiles not in self._cache:
+            self._cache[molecule.smiles] = self._inner_featurize(molecule)
+        return self._cache[molecule.smiles]
