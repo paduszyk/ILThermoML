@@ -18,12 +18,7 @@ class MoleculeFeaturizer(ABC):
     def __call__(self, molecule: Molecule) -> dict[str, Any]:
         descriptors = self._featurize(molecule)
 
-        if any(
-            [
-                not descriptors,
-                all(not descriptor for descriptor in descriptors.values()),
-            ]
-        ):
+        if all(not descriptor for descriptor in descriptors.values()):
             msg = f"Unable to calculate descriptors for {molecule!r}"
 
             raise FeaturizerError(msg)
